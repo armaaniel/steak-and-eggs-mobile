@@ -1,98 +1,111 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { useState, useEffect } from 'react'
+import { View, Text, ScrollView, StyleSheet, useColorScheme } from 'react-native'
+import { useThrottledCallback } from 'use-debounce'
+import { Colors } from '@/constants/theme'
+import { toPortfolio } from '@/utils'
+import { getConsumer } from '@/consumer'
+import Chart from '@/components/Chart'
+import PositionsList from '@/components/PositionsList'
+import { usePortfolio, usePortfolioChart } from '@/hooks/useApi'
+import type { Positions, Prices } from '@/types'
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const scheme = useColorScheme()
+  const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+  const { data: portfolio, isError } = usePortfolio()
+  const { data: chartData = [] } = usePortfolioChart()
+
+  const [prices, setPrices] = useState<Prices>({})
+  const [liveAum, setLiveAum] = useState<number | undefined>()
+
+  useEffect(() => {
+    if (!portfolio?.positions) return
+
+    let subscriptions: any[] = []
+
+    const setup = async () => {
+      const consumer = await getConsumer()
+      subscriptions = (portfolio.positions as Positions[]).map((position) =>
+        consumer.subscriptions.create(
+          { channel: 'PriceChannel', symbol: position.symbol },
+          {
+            received(data: number) {
+              setPrices((prev) => ({ ...prev, [position.symbol]: data }))
+            },
+          },
+        ),
+      )
+    }
+
+    setup()
+    return () => subscriptions.forEach((sub) => sub.unsubscribe())
+  }, [portfolio?.positions])
+
+  const updateLiveAum = useThrottledCallback(
+    () => {
+      if (!portfolio?.positions || Object.keys(prices).length === 0) return
+      const stockValue = (portfolio.positions as Positions[]).reduce((acc: number, position: Positions) => {
+        const price = prices[position.symbol] || position.price
+        return acc + price * position.shares
+      }, 0)
+      setLiveAum(stockValue + parseFloat(portfolio?.balance || '0'))
+    },
+    5000,
+    { trailing: false },
+  )
+
+  useEffect(() => {
+    updateLiveAum()
+  }, [prices, portfolio?.positions, portfolio?.balance, updateLiveAum])
+
+  const aum = liveAum ?? portfolio?.aum
+  const s = styles(colors)
+
+  return (
+    <ScrollView style={s.scroll} contentContainerStyle={s.content}>
+      {/* 1. Portfolio value */}
+      <Text style={s.valueAmount}>{toPortfolio(aum) ?? '—'}</Text>
+      <Text style={s.cashLine}>Cash: {toPortfolio(portfolio?.balance) ?? '—'}</Text>
+
+      {/* 2. Chart */}
+      <Chart chartData={chartData} />
+
+      {/* 3. Holdings */}
+      <View>
+        <Text style={s.sectionHeader}>Holdings</Text>
+        <PositionsList
+          positions={portfolio?.positions}
+          prices={prices}
+          error={isError ? 'Unable to fetch positions, please try again' : null}
+        />
+      </View>
+    </ScrollView>
+  )
 }
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+const styles = (colors: typeof Colors.light) => StyleSheet.create({
+  scroll: {
+    flex: 1,
+    backgroundColor: colors.background,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  content: {
+    padding: 16,
+    paddingTop: 20,
+    gap: 16,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  valueAmount: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: colors.text,
   },
-});
+  cashLine: {
+    fontSize: 15,
+    color: colors.textMuted,
+  },
+  sectionHeader: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+  },
+})

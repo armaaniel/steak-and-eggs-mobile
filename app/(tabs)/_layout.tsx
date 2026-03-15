@@ -1,35 +1,92 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Tabs } from 'expo-router'
+import { View, Pressable, StyleSheet, useColorScheme } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { Ionicons } from '@expo/vector-icons'
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
+import { Colors } from '@/constants/theme'
+import FundsButton from '@/components/FundsButton'
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+const ICONS: Record<string, { focused: keyof typeof Ionicons.glyphMap; unfocused: keyof typeof Ionicons.glyphMap }> = {
+  index:    { focused: 'home',          unfocused: 'home-outline' },
+  activity: { focused: 'list',          unfocused: 'list-outline' },
+  search:   { focused: 'search',        unfocused: 'search-outline' },
+  settings: { focused: 'person-circle', unfocused: 'person-circle-outline' },
+}
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+function MenuBar({ state, navigation }: BottomTabBarProps) {
+  const scheme = useColorScheme()
+  const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
+  const s = styles(colors)
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
-  );
+    <SafeAreaView style={s.safeArea} edges={['top']}>
+      <View style={s.bar}>
+        {state.routes.map((route, index) => {
+          const isFocused = state.index === index
+          const icon = ICONS[route.name]
+          const iconName = isFocused ? icon?.focused : icon?.unfocused
+
+          return (
+            <Pressable
+              key={route.key}
+              onPress={() => { if (!isFocused) navigation.navigate(route.name) }}
+              style={s.item}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={iconName ?? 'ellipse-outline'}
+                size={22}
+                color={isFocused ? colors.accent : colors.textMuted}
+              />
+            </Pressable>
+          )
+        })}
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <FundsButton />
+        </View>
+      </View>
+    </SafeAreaView>
+  )
 }
+
+export default function TabLayout() {
+  const scheme = useColorScheme()
+  const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
+  return (
+    <Tabs
+      tabBar={(props) => <MenuBar {...props} />}
+      screenOptions={{ headerShown: false, tabBarPosition: 'top', animation: 'fade', sceneStyle: { backgroundColor: colors.background } }}
+    >
+      <Tabs.Screen name="index" options={{ title: 'Home' }} />
+      <Tabs.Screen name="activity" options={{ title: 'Activity' }} />
+      <Tabs.Screen name="search" options={{ title: 'Search' }} />
+      <Tabs.Screen name="settings" options={{ title: 'Settings' }} />
+    </Tabs>
+  )
+}
+
+const styles = (colors: typeof Colors.light) => StyleSheet.create({
+  safeArea: {
+    backgroundColor: colors.background,
+  },
+  bar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 44,
+    paddingHorizontal: 8,
+  },
+  item: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.textMuted,
+  },
+  labelFocused: {
+    color: colors.accent,
+    fontWeight: '600',
+  },
+})

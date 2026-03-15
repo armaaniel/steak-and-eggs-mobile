@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { View, Text, Image, FlatList, Pressable, StyleSheet, useColorScheme } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { Colors } from '@/constants/theme'
 import { toCurrency, toPnl } from '@/utils'
@@ -135,7 +136,7 @@ export default function ActivityScreen() {
   const s = styles(colors)
 
   return (
-    <View style={s.container}>
+    <SafeAreaView style={s.container} edges={['bottom']}>
       <FlatList
         data={activityData ?? []}
         keyExtractor={(item) => String(item.id)}
@@ -155,7 +156,7 @@ export default function ActivityScreen() {
           ) : null
         }
       />
-    </View>
+    </SafeAreaView>
   )
 }
 

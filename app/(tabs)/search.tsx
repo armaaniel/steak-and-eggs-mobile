@@ -9,6 +9,7 @@ import {
   StyleSheet,
   useColorScheme,
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -130,7 +131,7 @@ export default function SearchScreen() {
   const s = styles(colors)
 
   return (
-    <View style={s.container}>
+    <SafeAreaView style={s.container} edges={['bottom']}>
       {/* Search input */}
       <View style={s.inputRow}>
         <Ionicons name="search-outline" size={18} color={colors.textHint} style={s.searchIcon} />
@@ -191,7 +192,7 @@ export default function SearchScreen() {
           ) : null
         }
       />
-    </View>
+    </SafeAreaView>
   )
 }
 

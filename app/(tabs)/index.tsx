@@ -8,6 +8,7 @@ import Chart from '@/components/Chart'
 import PositionsList from '@/components/PositionsList'
 import { usePortfolio, usePortfolioChart } from '@/hooks/useApi'
 import type { Positions, Prices } from '@/types'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function HomeScreen() {
   const scheme = useColorScheme()
@@ -63,28 +64,34 @@ export default function HomeScreen() {
   const s = styles(colors)
 
   return (
-    <ScrollView style={s.scroll} contentContainerStyle={s.content}>
-      {/* 1. Portfolio value */}
-      <Text style={s.valueAmount}>{toPortfolio(aum) ?? '—'}</Text>
-      <Text style={s.cashLine}>Cash: {toPortfolio(portfolio?.balance) ?? '—'}</Text>
+    <SafeAreaView style={s.safeArea} edges={['bottom']}>
+      <ScrollView style={s.scroll} contentContainerStyle={s.content}>
+        {/* 1. Portfolio value */}
+        <Text style={s.valueAmount}>{toPortfolio(aum) ?? '—'}</Text>
+        <Text style={s.cashLine}>Cash: {toPortfolio(portfolio?.balance) ?? '—'}</Text>
 
-      {/* 2. Chart */}
-      <Chart chartData={chartData} />
+        {/* 2. Chart */}
+        <Chart chartData={chartData} />
 
-      {/* 3. Holdings */}
-      <View>
-        <Text style={s.sectionHeader}>Holdings</Text>
-        <PositionsList
-          positions={portfolio?.positions}
-          prices={prices}
-          error={isError ? 'Unable to fetch positions, please try again' : null}
-        />
-      </View>
-    </ScrollView>
+        {/* 3. Holdings */}
+        <View>
+          <Text style={s.sectionHeader}>Holdings</Text>
+          <PositionsList
+            positions={portfolio?.positions}
+            prices={prices}
+            error={isError ? 'Unable to fetch positions, please try again' : null}
+          />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   )
 }
 
 const styles = (colors: typeof Colors.light) => StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   scroll: {
     flex: 1,
     backgroundColor: colors.background,

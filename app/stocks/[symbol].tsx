@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   Pressable,
   StyleSheet,
+  Animated,
   useColorScheme,
 } from 'react-native'
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
@@ -21,6 +22,8 @@ import type { TickerData, UserData, ChartData, Price, Open } from '@/types'
 
 // TODO: replace with a proper fallback-logo asset
 const FALLBACK_LOGO = require('@/assets/images/icon.png')
+
+const FADE_DURATION = 200
 
 const EXCHANGE_NAMES: { [key: string]: string } = {
   XNAS: 'NASDAQ',
@@ -42,6 +45,20 @@ interface CompanyData {
   market_cap: number | string | null
 }
 
+function useFadeIn(trigger: unknown) {
+  const opacity = useRef(new Animated.Value(0)).current
+  useEffect(() => {
+    if (trigger != null) {
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: FADE_DURATION,
+        useNativeDriver: true,
+      }).start()
+    }
+  }, [trigger])
+  return opacity
+}
+
 export default function StockScreen() {
   const router = useRouter()
   const scheme = useColorScheme()
@@ -60,6 +77,11 @@ export default function StockScreen() {
   const [price, setPrice] = useState<Price>(null)
   const [open, setOpen] = useState<Open>(null)
   const [asOf, setAsOf] = useState(new Date(Date.now() - 15 * 60 * 1000))
+
+  const tickerOpacity = useFadeIn(tickerData)
+  const priceOpacity = useFadeIn(price)
+  const marketOpacity = useFadeIn(marketData)
+  const companyOpacity = useFadeIn(companyData)
 
   const percentChange = toPercent(price, open)
   const isPositive = Boolean(percentChange && percentChange.startsWith('+'))
@@ -241,17 +263,25 @@ export default function StockScreen() {
           />
           <View style={s.headingText}>
             <Text style={s.symbol}>{symbol}</Text>
-            <Text style={s.name}>{tickerData?.name ?? '—'}</Text>
+            <Animated.Text style={[s.name, { opacity: tickerOpacity }]}>{tickerData?.name}</Animated.Text>
           </View>
         </View>
 
         {/* 2. Price + percent change + timestamp */}
         <View style={s.priceRow}>
           <View>
-            <Text style={s.price}>${toCurrency(price) ?? '—'} <Text style={s.priceCurrency}>USD</Text></Text>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+              <Text style={s.price}>$</Text>
+              <Animated.View style={{ opacity: priceOpacity }}>
+                <Text style={s.price}>{toCurrency(price)}</Text>
+              </Animated.View>
+              <Text style={s.priceCurrency}> USD</Text>
+            </View>
             <Text style={s.asOf}>{asOf.toLocaleTimeString()}</Text>
           </View>
-          <Text style={[s.percentChange, { color: changeColor }]}>{percentChange ?? '—'}</Text>
+          <Animated.View style={{ opacity: priceOpacity }}>
+            <Text style={[s.percentChange, { color: changeColor }]}>{percentChange}</Text>
+          </Animated.View>
         </View>
 
         {/* 3. Chart */}
@@ -279,24 +309,24 @@ export default function StockScreen() {
         <View style={s.section}>
           <Text style={s.sectionHeader}>Market Details</Text>
           <View style={s.grid}>
-            <MarketCell label="Open" value={`$${toCurrency(marketData?.open) ?? '—'}`} />
-            <MarketCell label="High" value={`$${toCurrency(marketData?.high) ?? '—'}`} />
-            <MarketCell label="Low" value={`$${toCurrency(marketData?.low) ?? '—'}`} />
-            <MarketCell label="Volume" value={toReadable(marketData?.volume) ?? '—'} />
-            <MarketCell label="Currency" value="USD" />
-            <MarketCell label="Exchange" value={EXCHANGE_NAMES[tickerData?.exchange ?? ''] ?? tickerData?.exchange ?? '—'} />
+            <MarketCell label="Open" value={`$${toCurrency(marketData?.open) ?? ''}`} opacity={marketOpacity} />
+            <MarketCell label="High" value={`$${toCurrency(marketData?.high) ?? ''}`} opacity={marketOpacity} />
+            <MarketCell label="Low" value={`$${toCurrency(marketData?.low) ?? ''}`} opacity={marketOpacity} />
+            <MarketCell label="Volume" value={toReadable(marketData?.volume) ?? ''} opacity={marketOpacity} />
+            <MarketCell label="Currency" value="USD" opacity={marketOpacity} />
+            <MarketCell label="Exchange" value={EXCHANGE_NAMES[tickerData?.exchange ?? ''] ?? tickerData?.exchange ?? ''} opacity={marketOpacity} />
             {tickerData?.ticker_type === 'CS' && (
-              <MarketCell label="Market Cap" value={toReadable(companyData?.market_cap) ?? '—'} />
+              <MarketCell label="Market Cap" value={toReadable(companyData?.market_cap) ?? ''} opacity={companyOpacity} />
             )}
           </View>
         </View>
 
         {/* 7. Company description (common stocks only) */}
         {tickerData?.ticker_type === 'CS' && companyData?.description && (
-          <View style={s.section}>
+          <Animated.View style={[s.section, { opacity: companyOpacity }]}>
             <Text style={s.sectionHeader}>Description</Text>
             <Text style={s.description}>{companyData.description}</Text>
-          </View>
+          </Animated.View>
         )}
 
       </ScrollView>
@@ -305,12 +335,14 @@ export default function StockScreen() {
   )
 }
 
-function MarketCell({ label, value }: { label: string; value: string }) {
+function MarketCell({ label, value, opacity }: { label: string; value: string; opacity: Animated.Value }) {
   const colors = Colors[useColorScheme() === 'dark' ? 'dark' : 'light']
   return (
     <View style={cellStyles.cell}>
       <Text style={[cellStyles.label, { color: colors.textMuted }]}>{label}</Text>
-      <Text style={[cellStyles.value, { color: colors.text }]}>{value}</Text>
+      <Animated.View style={{ opacity }}>
+        <Text style={[cellStyles.value, { color: colors.text }]}>{value}</Text>
+      </Animated.View>
     </View>
   )
 }

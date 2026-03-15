@@ -69,8 +69,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
         const errorData = await response.json()
         setError(errorData.error)
       }
-    } catch {
+    } catch (err) {
       setError('Something went wrong, please try again')
+		  console.error('Auth error:', err);
     } finally {
       setIsSubmitting(false)
     }

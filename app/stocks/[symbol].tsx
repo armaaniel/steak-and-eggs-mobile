@@ -23,7 +23,7 @@ import type { TickerData, UserData, ChartData, Price, Open } from '@/types'
 // TODO: replace with a proper fallback-logo asset
 const FALLBACK_LOGO = require('@/assets/images/icon.png')
 
-const FADE_DURATION = 200
+const FADE_DURATION = 250
 
 const EXCHANGE_NAMES: { [key: string]: string } = {
   XNAS: 'NASDAQ',
@@ -80,6 +80,7 @@ export default function StockScreen() {
 
   const tickerOpacity = useFadeIn(tickerData)
   const priceOpacity = useFadeIn(price)
+  const chartOpacity = useFadeIn(chartData.length > 0 ? chartData : null)
   const marketOpacity = useFadeIn(marketData)
   const companyOpacity = useFadeIn(companyData)
 
@@ -285,7 +286,9 @@ export default function StockScreen() {
         </View>
 
         {/* 3. Chart */}
-        <Chart chartData={chartData} />
+        <Animated.View style={{ opacity: chartOpacity }}>
+          <Chart chartData={chartData} />
+        </Animated.View>
 
         {/* 4. Buy/Sell */}
         <BuySell

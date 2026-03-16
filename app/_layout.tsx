@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar'
 import { useColorScheme } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { Colors } from '@/constants/theme'
 import * as NavigationBar from 'expo-navigation-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -51,6 +52,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background }}>
       <QueryClientProvider client={queryClient}>
+      <BottomSheetModalProvider>
       <Stack initialRouteName="login" screenOptions={{ animation: 'fade' }}>
         <Stack.Screen name="login" options={{ headerShown: false, contentStyle: bg }} />
         <Stack.Screen name="signup" options={{ headerShown: false, contentStyle: bg }} />
@@ -58,6 +60,7 @@ export default function RootLayout() {
         <Stack.Screen name="stocks/[symbol]" options={{ headerShown: false, contentStyle: bg }} />
       </Stack>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      </BottomSheetModalProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   )

@@ -34,14 +34,13 @@ export default function PositionCard({ position, price }: Props) {
         />
         <View>
           <Text style={s.symbol}>{position.symbol}</Text>
-          <Text style={s.shares}>{position.shares} shares</Text>
+          <Text style={s.shares}>{position.shares} shares @ ${toCurrency(position.average_price)}</Text>
         </View>
       </View>
 
       {/* Right: total value + avg price + PnL */}
       <View style={s.right}>
         <Text style={s.value}>{value != null ? `$${toCurrency(value)}` : '—'}</Text>
-        <Text style={s.avgPrice}>avg ${toCurrency(position.average_price)}</Text>
         <View style={s.pnlRow}>
           <Text style={[s.pnl, { color: pnlColor }]}>
             {pnl != null ? `$${toPnlCurrency(pnl)}` : '—'}
@@ -93,10 +92,6 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: colors.text,
-  },
-  avgPrice: {
-    fontSize: 12,
-    color: colors.textMuted,
   },
   pnlRow: {
     flexDirection: 'row',

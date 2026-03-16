@@ -15,7 +15,6 @@ import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useDebounce } from 'use-debounce'
 import { Colors } from '@/constants/theme'
-import { toCurrency } from '@/utils'
 import { resetConsumer } from '@/consumer'
 import type { Error } from '@/types'
 
@@ -29,7 +28,7 @@ interface SearchResult {
 
 const POPULAR = ['AAPL', 'TSLA', 'AMZN', 'GOOGL', 'MSFT', 'NVDA', 'META', 'NFLX', 'AMD', 'JPM', 'V', 'DIS']
 
-function StockCard({ symbol, price, onPress, s }: { symbol: string; price?: string; onPress: () => void; s: ReturnType<typeof styles> }) {
+function StockCard({ symbol, onPress, s }: { symbol: string; onPress: () => void; s: ReturnType<typeof styles> }) {
   return (
     <Pressable style={({ pressed }) => [s.card, pressed && s.cardPressed]} onPress={onPress}>
       <Image
@@ -37,7 +36,6 @@ function StockCard({ symbol, price, onPress, s }: { symbol: string; price?: stri
         style={s.cardLogo}
       />
       <Text style={s.cardSymbol}>{symbol}</Text>
-      <Text style={s.cardPrice}>{price ? `$${toCurrency(price)}` : '—'}</Text>
     </Pressable>
   )
 }
@@ -54,7 +52,6 @@ export default function SearchScreen() {
   const [error, setError] = useState<Error>(null)
   const [hasSearched, setHasSearched] = useState(false)
   const [recentStocks, setRecentStocks] = useState<{ symbol: string; name: string }[]>([])
-  const [gridPrices, setGridPrices] = useState<Record<string, string>>({})
 
   // Load recents from storage
   useEffect(() => {
@@ -62,30 +59,6 @@ export default function SearchScreen() {
       if (raw) setRecentStocks(JSON.parse(raw))
     })
   }, [])
-
-  // Fetch prices for all grid symbols
-  useEffect(() => {
-    const recentSymbols = recentStocks.map((r) => r.symbol)
-    const allSymbols = [...new Set([...recentSymbols, ...POPULAR])]
-
-    async function fetchPrices() {
-      const token = await AsyncStorage.getItem('authToken')
-      if (!token) return
-      const results = await Promise.allSettled(
-        allSymbols.map((symbol) =>
-          fetch(`${API}/stocks/${symbol}/stockprice`, { headers: { authToken: token } })
-            .then((r) => r.json())
-            .then((d) => ({ symbol, price: d.price }))
-        )
-      )
-      const prices: Record<string, string> = {}
-      results.forEach((r) => {
-        if (r.status === 'fulfilled') prices[r.value.symbol] = r.value.price
-      })
-      setGridPrices(prices)
-    }
-    fetchPrices()
-  }, [recentStocks])
 
   useEffect(() => {
     if (!debouncedSearchTerm) {
@@ -175,7 +148,7 @@ export default function SearchScreen() {
                   <Text style={s.sectionHeader}>Recent</Text>
                   <View style={s.grid}>
                     {recentStocks.map(({ symbol }) => (
-                      <StockCard key={symbol} symbol={symbol} price={gridPrices[symbol]} onPress={() => handleSelect(symbol)} s={s} />
+                      <StockCard key={symbol} symbol={symbol} onPress={() => handleSelect(symbol)} s={s} />
                     ))}
                   </View>
                 </View>
@@ -293,9 +266,5 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: colors.text,
-  },
-  cardPrice: {
-    fontSize: 11,
-    color: colors.textMuted,
   },
 })

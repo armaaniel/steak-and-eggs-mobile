@@ -215,7 +215,7 @@ export default function BuySell({ getUserData, balance, position, price, name, s
     return (
       <View style={s.card}>
         <Pressable style={s.backBtn} onPress={() => setStep(1)}>
-          <Text style={s.backBtnText}>← back</Text>
+          <Text style={s.backBtnText}><Text style={s.backArrow}>←</Text> back</Text>
         </Pressable>
 
         <View style={s.row}>
@@ -425,6 +425,9 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
   backBtnText: {
     fontSize: 14,
     color: colors.textMuted,
+  },
+  backArrow: {
+    fontSize: 20,
   },
   resultHeader: {
     gap: 2,

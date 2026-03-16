@@ -157,7 +157,7 @@ export default function SearchScreen() {
                 <Text style={s.sectionHeader}>Popular</Text>
                 <View style={s.grid}>
                   {POPULAR.map((symbol) => (
-                    <StockCard key={symbol} symbol={symbol} price={gridPrices[symbol]} onPress={() => handleSelect(symbol)} s={s} />
+                    <StockCard key={symbol} symbol={symbol} onPress={() => handleSelect(symbol)} s={s} />
                   ))}
                 </View>
               </View>

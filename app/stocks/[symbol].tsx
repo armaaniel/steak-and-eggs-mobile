@@ -9,7 +9,7 @@ import {
   Animated,
   useColorScheme,
 } from 'react-native'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import ReAnimated, { FadeIn, Layout } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -238,14 +238,19 @@ export default function StockScreen() {
 
   if (tickerNotFound) {
     return (
-      <View style={s.notFound}>
-        <Text style={s.notFoundText}>Ticker "{symbol}" not found.</Text>
-      </View>
+      <>
+        <Stack.Screen options={{ title: symbol, headerBackTitle: 'Back' }} />
+        <View style={s.notFound}>
+          <Text style={s.notFoundText}>Ticker "{symbol}" not found.</Text>
+        </View>
+      </>
     )
   }
 
   return (
-      <SafeAreaView style={s.safeArea} edges={['bottom']}>
+    <>
+      <Stack.Screen options={{ title: symbol, headerBackTitle: 'Back' }} />
+      <SafeAreaView style={s.safeArea} edges={['top', 'bottom']}>
       <ScrollView style={s.scroll} contentContainerStyle={s.content}>
 
         {/* 1. Logo + symbol + name + back button */}
@@ -327,6 +332,7 @@ export default function StockScreen() {
 
       </ScrollView>
       </SafeAreaView>
+    </>
   )
 }
 

@@ -57,6 +57,7 @@ export default function RootLayout() {
         <Stack.Screen name="login" options={{ headerShown: false, contentStyle: bg }} />
         <Stack.Screen name="signup" options={{ headerShown: false, contentStyle: bg }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false, contentStyle: bg }} />
+        <Stack.Screen name="stocks/[symbol]" options={{ headerShown: false, contentStyle: bg }} />
       </Stack>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       </BottomSheetModalProvider>

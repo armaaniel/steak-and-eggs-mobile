@@ -66,6 +66,7 @@ export function usePortfolioChart() {
   })
 }
 
+
 export function useActivity() {
   const router = useRouter()
   return useQuery({

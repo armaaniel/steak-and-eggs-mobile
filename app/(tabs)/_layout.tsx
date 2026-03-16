@@ -61,7 +61,6 @@ export default function TabLayout() {
       <Tabs.Screen name="activity" options={{ title: 'Activity' }} />
       <Tabs.Screen name="search" options={{ title: 'Search' }} />
       <Tabs.Screen name="settings" options={{ title: 'Settings' }} />
-      <Tabs.Screen name="stocks/[symbol]" options={{ href: null }} />
     </Tabs>
   )
 }

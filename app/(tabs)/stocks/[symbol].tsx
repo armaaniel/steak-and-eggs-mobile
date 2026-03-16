@@ -9,7 +9,7 @@ import {
   Animated,
   useColorScheme,
 } from 'react-native'
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import ReAnimated, { FadeIn, Layout } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -61,13 +61,16 @@ function useFadeIn(trigger: unknown) {
 }
 
 export default function StockScreen() {
+  const params = useLocalSearchParams<{ symbol: string }>()
+  const symbol = params.symbol?.toUpperCase()
+  return <StockScreenInner key={symbol} symbol={symbol} />
+}
+
+function StockScreenInner({ symbol }: { symbol: string | undefined }) {
   const router = useRouter()
   const scheme = useColorScheme()
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
   const API = process.env.EXPO_PUBLIC_API_URL
-
-  const params = useLocalSearchParams<{ symbol: string }>()
-  const symbol = params.symbol?.toUpperCase()
 
   const [tickerData, setTickerData] = useState<TickerData | null>(null)
   const [tickerNotFound, setTickerNotFound] = useState(false)
@@ -112,7 +115,7 @@ export default function StockScreen() {
     }
   }
 
-  // Ticker + user data in parallel on symbol change
+  // Ticker + user data in parallel on mount
   useEffect(() => {
     async function getData() {
       const token = await AsyncStorage.getItem('authToken')
@@ -131,7 +134,7 @@ export default function StockScreen() {
           const raw = await AsyncStorage.getItem('recentStocks')
           const recents: { symbol: string; name: string }[] = raw ? JSON.parse(raw) : []
           const filtered = recents.filter((r) => r.symbol !== symbol)
-          filtered.unshift({ symbol, name: data.name ?? symbol })
+          filtered.unshift({ symbol: symbol!, name: data.name ?? symbol })
           await AsyncStorage.setItem('recentStocks', JSON.stringify(filtered.slice(0, 12)))
         } else if (tickerResponse.status === 401) {
           await handle401()
@@ -143,7 +146,7 @@ export default function StockScreen() {
       }
     }
     getData()
-  }, [symbol])
+  }, [])
 
   useEffect(() => {
     async function getChartData() {
@@ -162,11 +165,10 @@ export default function StockScreen() {
       }
     }
     getChartData()
-  }, [symbol])
+  }, [])
 
   useEffect(() => {
     async function getCompanyData() {
-      setCompanyData(null)
       const token = await AsyncStorage.getItem('authToken')
       if (!token) return
       try {
@@ -178,11 +180,10 @@ export default function StockScreen() {
       }
     }
     getCompanyData()
-  }, [symbol])
+  }, [])
 
   useEffect(() => {
     async function getMarketData() {
-      setMarketData(null)
       const token = await AsyncStorage.getItem('authToken')
       if (!token) return
       try {
@@ -194,7 +195,7 @@ export default function StockScreen() {
       }
     }
     getMarketData()
-  }, [symbol])
+  }, [])
 
   useEffect(() => {
     async function getStockPrice() {
@@ -212,7 +213,7 @@ export default function StockScreen() {
       }
     }
     getStockPrice()
-  }, [symbol])
+  }, [])
 
   // WebSocket: live price updates
   useEffect(() => {
@@ -226,7 +227,7 @@ export default function StockScreen() {
     }
     setup()
     return () => subscription?.unsubscribe()
-  }, [symbol])
+  }, [])
 
   // "As of" timestamp refresh every 15s
   useEffect(() => {
@@ -238,20 +239,15 @@ export default function StockScreen() {
 
   if (tickerNotFound) {
     return (
-      <>
-        <Stack.Screen options={{ title: symbol, headerBackTitle: 'Back' }} />
-        <View style={s.notFound}>
-          <Text style={s.notFoundText}>Ticker "{symbol}" not found.</Text>
-        </View>
-      </>
+      <View style={s.notFound}>
+        <Text style={s.notFoundText}>Ticker "{symbol}" not found.</Text>
+      </View>
     )
   }
 
   return (
-    <>
-      <Stack.Screen options={{ title: symbol, headerBackTitle: 'Back' }} />
-      <SafeAreaView style={s.safeArea} edges={['top', 'bottom']}>
-      <ScrollView style={s.scroll} contentContainerStyle={s.content}>
+    <SafeAreaView style={s.safeArea} edges={['bottom']}>
+    <ScrollView style={s.scroll} contentContainerStyle={s.content}>
 
         {/* 1. Logo + symbol + name + back button */}
         <View style={s.heading}>
@@ -330,9 +326,8 @@ export default function StockScreen() {
           </Animated.View>
         )}
 
-      </ScrollView>
-      </SafeAreaView>
-    </>
+    </ScrollView>
+    </SafeAreaView>
   )
 }
 
@@ -357,7 +352,7 @@ const cellStyles = StyleSheet.create({
 const styles = (colors: typeof Colors.light) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   scroll: { flex: 1 },
-  content: { padding: 16, gap: 20, paddingTop:32 },
+  content: { padding: 16, paddingTop: 20, gap: 20 },
   notFound: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   notFoundText: { fontSize: 16, color: colors.textMuted },
 

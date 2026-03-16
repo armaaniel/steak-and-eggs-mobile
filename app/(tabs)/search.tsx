@@ -98,7 +98,7 @@ export default function SearchScreen() {
 
   function handleSelect(symbol: string) {
     setSearchTerm('')
-    router.push(`/stocks/${symbol}` as any)
+    router.push(`/(tabs)/stocks/${symbol}` as any)
   }
 
   const s = styles(colors)

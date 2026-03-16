@@ -30,7 +30,7 @@ function PositionRow({ position, prices, isLast }: { position: Positions; prices
   return (
     <Pressable
       style={({ pressed }) => [s.row, !isLast && s.rowBorder, pressed && s.rowPressed]}
-      onPress={() => router.push(`/stocks/${position.symbol}` as any)}
+      onPress={() => router.push(`/(tabs)/stocks/${position.symbol}` as any)}
     >
       <Image
         source={{ uri: `https://img.logo.dev/ticker/${position.symbol}?token=pk_ZBCJebqoQXKBWVLhwcIBfg&retina=true&format=png` }}

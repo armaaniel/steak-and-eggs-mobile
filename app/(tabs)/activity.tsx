@@ -238,7 +238,7 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     backgroundColor: colors.background,
   },
   listContent: {
-    paddingTop: 8,
+    paddingTop: 20,
     paddingBottom: 32,
   },
   emptyText: {

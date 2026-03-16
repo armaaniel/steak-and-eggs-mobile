@@ -22,9 +22,10 @@ function MenuBar({ state, navigation }: BottomTabBarProps) {
     <SafeAreaView style={s.safeArea} edges={['top']}>
       <View style={s.bar}>
         {state.routes.map((route, index) => {
-          const isFocused = state.index === index
           const icon = ICONS[route.name]
-          const iconName = isFocused ? icon?.focused : icon?.unfocused
+          if (!icon) return null
+          const isFocused = state.index === index
+          const iconName = isFocused ? icon.focused : icon.unfocused
 
           return (
             <Pressable
@@ -36,7 +37,7 @@ function MenuBar({ state, navigation }: BottomTabBarProps) {
               <Ionicons
                 name={iconName ?? 'ellipse-outline'}
                 size={22}
-                color={isFocused ? colors.accent : colors.textMuted}
+                color={isFocused ? colors.textMuted : colors.textHint}
               />
             </Pressable>
           )
@@ -61,6 +62,7 @@ export default function TabLayout() {
       <Tabs.Screen name="activity" options={{ title: 'Activity' }} />
       <Tabs.Screen name="search" options={{ title: 'Search' }} />
       <Tabs.Screen name="settings" options={{ title: 'Settings' }} />
+      <Tabs.Screen name="stocks/[symbol]" options={{ href: null }} initialParams={{ symbol: '' }} />
     </Tabs>
   )
 }

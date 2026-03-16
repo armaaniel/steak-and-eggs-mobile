@@ -54,6 +54,13 @@ export default function BuySell({ getUserData, balance, position, price, name, s
   const isBuy = action === 'buy'
   const [tabWidth, setTabWidth] = useState(0)
   const slideX = useSharedValue(0)
+  const balanceOpacity = useSharedValue(balance != null ? 1 : 0)
+
+  useEffect(() => {
+    if (balance != null) {
+      balanceOpacity.value = withTiming(1, { duration: 250 })
+    }
+  }, [balance])
 
   function handleTabLayout(e: { nativeEvent: { layout: { width: number } } }) {
     setTabWidth(e.nativeEvent.layout.width)
@@ -76,7 +83,7 @@ export default function BuySell({ getUserData, balance, position, price, name, s
   })()
 
   const free = estimatedCost === 0 || isNaN(estimatedCost as any)
-  const hasInsufficientFunds = isNaN(Number(balance)) || (typeof estimatedCost === 'number' && estimatedCost > Number(balance))
+  const hasInsufficientFunds = balance != null && (isNaN(Number(balance)) || (typeof estimatedCost === 'number' && estimatedCost > Number(balance)))
   const hasInsufficientShares = Number(quantity) > (position?.shares || 0)
   const quantityInvalid = quantity === ''
 
@@ -125,7 +132,9 @@ export default function BuySell({ getUserData, balance, position, price, name, s
 
   // ─── Step 1: Order Entry ────────────────────────────────────────────────────
   if (step === 1) {
-    const blockNext = (isBuy ? hasInsufficientFunds : hasInsufficientShares) || quantityInvalid || free
+    const balanceLoading = balance == null
+    const priceLoading = price == null
+    const blockNext = (isBuy ? (balanceLoading || hasInsufficientFunds) : hasInsufficientShares) || priceLoading || quantityInvalid || free
 
     return (
       <View style={s.card}>
@@ -176,9 +185,9 @@ export default function BuySell({ getUserData, balance, position, price, name, s
         {/* Available cash / shares */}
         <View style={s.row}>
           <Text style={s.rowLabel}>{isBuy ? 'Available Cash' : 'Available Shares'}</Text>
-          <Text style={s.rowValue}>
+          <Animated.Text style={[s.rowValue, { opacity: isBuy ? balanceOpacity : 1 }]}>
             {isBuy ? `$${toCurrency(balance)} USD` : (position?.shares?.toLocaleString() ?? '0')}
-          </Text>
+          </Animated.Text>
         </View>
 
         {/* Inline error */}

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { View, Text, Image, FlatList, Pressable, StyleSheet, useColorScheme } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import Animated, { FadeIn } from 'react-native-reanimated'
+import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated'
 import { Colors } from '@/constants/theme'
 import { toCurrency, toPnl } from '@/utils'
 import { useActivity } from '@/hooks/useApi'
@@ -70,7 +70,7 @@ function TransactionRow({ item, colors, isLast, isExpanded, onPress }: {
   const isTrade = item.transaction_type === 'Buy' || item.transaction_type === 'Sell'
 
   return (
-    <View style={!isLast && s.rowBorder}>
+    <Animated.View layout={Layout.duration(200)} style={!isLast && s.rowBorder}>
       <Pressable style={s.row} onPress={onPress}>
         {/* Icon */}
         {isTrade ? (
@@ -103,7 +103,7 @@ function TransactionRow({ item, colors, isLast, isExpanded, onPress }: {
 
       {/* Expandable details */}
       {isExpanded && (
-        <Animated.View entering={FadeIn.duration(200)}>
+        <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(120)}>
           <View style={s.details}>
             {item.quantity > 0 && (
               <DetailRow label="Quantity" value={item.quantity.toLocaleString()} colors={colors} />
@@ -118,7 +118,7 @@ function TransactionRow({ item, colors, isLast, isExpanded, onPress }: {
           </View>
         </Animated.View>
       )}
-    </View>
+    </Animated.View>
   )
 }
 

@@ -10,6 +10,7 @@ import {
   useColorScheme,
 } from 'react-native'
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
+import ReAnimated, { FadeIn, Layout } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Colors } from '@/constants/theme'
@@ -252,10 +253,7 @@ export default function StockScreen() {
       <SafeAreaView style={s.safeArea} edges={['top', 'bottom']}>
       <ScrollView style={s.scroll} contentContainerStyle={s.content}>
 
-        {/* 1. Back button + logo + symbol + name */}
-        <Pressable onPress={() => router.replace('/(tabs)')} hitSlop={12} style={s.backBtn}>
-          <Text style={s.backBtnText}>←</Text>
-        </Pressable>
+        {/* 1. Logo + symbol + name + back button */}
         <View style={s.heading}>
           <Image
             source={{ uri: `https://img.logo.dev/ticker/${symbol}?token=pk_ZBCJebqoQXKBWVLhwcIBfg&retina=true&format=png` }}
@@ -266,18 +264,18 @@ export default function StockScreen() {
             <Text style={s.symbol}>{symbol}</Text>
             <Animated.Text style={[s.name, { opacity: tickerOpacity }]}>{tickerData?.name}</Animated.Text>
           </View>
+          <Pressable onPress={() => router.replace('/(tabs)')} hitSlop={12} style={s.backBtn}>
+            <Text style={s.backBtnText}>←</Text>
+          </Pressable>
         </View>
 
         {/* 2. Price + percent change + timestamp */}
         <View style={s.priceRow}>
           <View>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-              <Text style={s.price}>$</Text>
-              <Animated.View style={{ opacity: priceOpacity }}>
-                <Text style={s.price}>{toCurrency(price)}</Text>
-              </Animated.View>
+            <Animated.View style={{ flexDirection: 'row', alignItems: 'baseline', opacity: priceOpacity }}>
+              <Text style={s.price}>${toCurrency(price)}</Text>
               <Text style={s.priceCurrency}> USD</Text>
-            </View>
+            </Animated.View>
             <Text style={s.asOf}>{asOf.toLocaleTimeString()}</Text>
           </View>
           <Animated.View style={{ opacity: priceOpacity }}>
@@ -302,14 +300,14 @@ export default function StockScreen() {
 
         {/* 5. Holdings card (if position exists) */}
         {userData?.position && (
-          <View style={s.section}>
+          <ReAnimated.View entering={FadeIn.duration(200)} style={s.section}>
             <Text style={s.sectionHeader}>Holdings</Text>
             <PositionCard position={userData.position} price={price} />
-          </View>
+          </ReAnimated.View>
         )}
 
         {/* 6. Market details grid */}
-        <View style={s.section}>
+        <ReAnimated.View layout={Layout.duration(200)} style={s.section}>
           <Text style={s.sectionHeader}>Market Details</Text>
           <View style={s.grid}>
             <MarketCell label="Open" value={`$${toCurrency(marketData?.open) ?? ''}`} opacity={marketOpacity} />
@@ -322,7 +320,7 @@ export default function StockScreen() {
               <MarketCell label="Market Cap" value={toReadable(companyData?.market_cap) ?? ''} opacity={companyOpacity} />
             )}
           </View>
-        </View>
+        </ReAnimated.View>
 
         {/* 7. Company description (common stocks only) */}
         {tickerData?.ticker_type === 'CS' && companyData?.description && (
@@ -359,7 +357,7 @@ const cellStyles = StyleSheet.create({
 const styles = (colors: typeof Colors.light) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   scroll: { flex: 1 },
-  content: { padding: 16, gap: 20, paddingBottom: 48 },
+  content: { padding: 16, gap: 20, paddingTop:32 },
   notFound: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   notFoundText: { fontSize: 16, color: colors.textMuted },
 

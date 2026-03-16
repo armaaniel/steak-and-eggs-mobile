@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
     height: CHART_HEIGHT,
     borderRadius: 8,
     borderWidth: 1,
+    marginBottom: -49,
   },
   chartWrapper: {
     height: CHART_HEIGHT,

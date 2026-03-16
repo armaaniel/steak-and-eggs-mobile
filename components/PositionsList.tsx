@@ -38,8 +38,11 @@ function PositionRow({ position, prices, isLast }: { position: Positions; prices
         defaultSource={FALLBACK_LOGO}
       />
       <View style={s.middle}>
-        <Text style={s.symbol}>{position.symbol}</Text>
-        <Text style={s.shares}>{position.shares} shares</Text>
+        <View style={s.symbolRow}>
+          <Text style={s.symbol}>{position.symbol}</Text>
+          <Text style={s.shares}>{position.shares} shares</Text>
+        </View>
+        <Text style={s.price}>${toCurrency(price)}</Text>
       </View>
       <View style={s.right}>
         <Text style={s.value}>${toCurrency(totalValue)}</Text>
@@ -106,6 +109,11 @@ const rowStyles = (colors: typeof Colors.light) => StyleSheet.create({
     flex: 1,
     gap: 2,
   },
+  symbolRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
+  },
   symbol: {
     fontSize: 15,
     fontWeight: '600',
@@ -114,6 +122,11 @@ const rowStyles = (colors: typeof Colors.light) => StyleSheet.create({
   shares: {
     fontSize: 12,
     color: colors.textMuted,
+  },
+  price: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.text,
   },
   right: {
     alignItems: 'flex-end',

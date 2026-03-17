@@ -37,7 +37,7 @@ function PositionRow({ position, prices, isLast }: { position: Positions; prices
     >
       <Image
         source={{ uri: `https://img.logo.dev/ticker/${position.symbol}?token=pk_ZBCJebqoQXKBWVLhwcIBfg&retina=true&format=png` }}
-        style={s.logo}
+        style={[s.logo, position.symbol === 'AAPL' && scheme === 'dark' && { backgroundColor: '#F5F4EE' }]}
         defaultSource={FALLBACK_LOGO}
       />
       <View style={s.middle}>
@@ -110,7 +110,7 @@ const rowStyles = (colors: typeof Colors.light) => StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-  },
+     },
   middle: {
     flex: 1,
     gap: 2,

@@ -76,10 +76,10 @@ function TransactionRow({ item, colors, isLast, isExpanded, onPress }: {
         {isTrade ? (
           <Image
             source={{ uri: `https://img.logo.dev/ticker/${item.symbol}?token=pk_ZBCJebqoQXKBWVLhwcIBfg&retina=true&format=png` }}
-            style={s.logo}
+            style={[s.logo, item.symbol === 'AAPL' && scheme === 'dark' && { backgroundColor: '#F5F4EE' }]}
           />
         ) : (
-          <View style={[s.icon, { backgroundColor: '#F5F4EE' }]}>
+          <View style={[s.icon, { backgroundColor: '#FFFFFF' }]}>
             <Text style={[s.iconText, { color: iconColor }]}>
               {item.transaction_type[0]}
             </Text>
@@ -176,7 +176,7 @@ const rowStyles = (colors: typeof Colors.light) => StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-  },
+     },
   icon: {
     width: 40,
     height: 40,

@@ -58,12 +58,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
       const response = await fetch(`${API}/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username: username.trim(), password }),
       })
 
       if (response.ok) {
         const data = await response.json()
         await AsyncStorage.setItem('authToken', data.token)
+        await AsyncStorage.setItem('username', data.username)
         router.replace('/(tabs)')
       } else {
         const errorData = await response.json()

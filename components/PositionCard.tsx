@@ -29,7 +29,7 @@ export default function PositionCard({ position, price }: Props) {
       <View style={s.left}>
         <Image
           source={{ uri: `https://img.logo.dev/ticker/${position.symbol}?token=pk_ZBCJebqoQXKBWVLhwcIBfg&retina=true&format=png` }}
-          style={s.logo}
+          style={[s.logo, position.symbol === 'AAPL' && scheme === 'dark' && { backgroundColor: '#F5F4EE' }]}
           defaultSource={FALLBACK_LOGO}
         />
         <View>
@@ -60,8 +60,7 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
+       borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.border,
     padding: 14,
@@ -77,7 +76,7 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 8,
-  },
+     },
   symbolRow: {
     flexDirection: 'row',
     alignItems: 'baseline',

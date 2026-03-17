@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   useColorScheme,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useRouter } from 'expo-router'
+import { useRouter, useFocusEffect } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useDebounce } from 'use-debounce'
@@ -26,14 +26,13 @@ interface SearchResult {
   ticker_type: string
 }
 
-const POPULAR = ['AAPL', 'TSLA', 'AMZN', 'GOOGL', 'MSFT', 'NVDA', 'META', 'NFLX', 'AMD', 'JPM', 'V', 'DIS']
 
-function StockCard({ symbol, onPress, s }: { symbol: string; onPress: () => void; s: ReturnType<typeof styles> }) {
+function StockCard({ symbol, onPress, s, scheme }: { symbol: string; onPress: () => void; s: ReturnType<typeof styles>; scheme: string | null | undefined }) {
   return (
     <Pressable style={({ pressed }) => [s.card, pressed && s.cardPressed]} onPress={onPress}>
       <Image
         source={{ uri: `https://img.logo.dev/ticker/${symbol}?token=pk_ZBCJebqoQXKBWVLhwcIBfg&retina=true&format=png` }}
-        style={s.cardLogo}
+        style={[s.cardLogo, symbol === 'AAPL' && scheme === 'dark' && { backgroundColor: '#F5F4EE' }]}
       />
       <Text style={s.cardSymbol}>{symbol}</Text>
     </Pressable>
@@ -53,12 +52,14 @@ export default function SearchScreen() {
   const [hasSearched, setHasSearched] = useState(false)
   const [recentStocks, setRecentStocks] = useState<{ symbol: string; name: string }[]>([])
 
-  // Load recents from storage
-  useEffect(() => {
-    AsyncStorage.getItem('recentStocks').then((raw) => {
-      if (raw) setRecentStocks(JSON.parse(raw))
-    })
-  }, [])
+  // Reload recents every time the tab is focused
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem('recentStocks').then((raw) => {
+        if (raw) setRecentStocks(JSON.parse(raw))
+      })
+    }, [])
+  )
 
   useEffect(() => {
     if (!debouncedSearchTerm) {
@@ -142,26 +143,18 @@ export default function SearchScreen() {
               <Text style={s.emptyText}>{error ?? 'No stocks found'}</Text>
             </View>
           ) : !searchTerm ? (
-            <View style={s.sections}>
-              {recentStocks.length > 0 && (
+            recentStocks.length > 0 ? (
+              <View style={s.sections}>
                 <View style={s.section}>
                   <Text style={s.sectionHeader}>Recent</Text>
                   <View style={s.grid}>
                     {recentStocks.map(({ symbol }) => (
-                      <StockCard key={symbol} symbol={symbol} onPress={() => handleSelect(symbol)} s={s} />
+                      <StockCard key={symbol} symbol={symbol} onPress={() => handleSelect(symbol)} s={s} scheme={scheme} />
                     ))}
                   </View>
                 </View>
-              )}
-              <View style={s.section}>
-                <Text style={s.sectionHeader}>Popular</Text>
-                <View style={s.grid}>
-                  {POPULAR.map((symbol) => (
-                    <StockCard key={symbol} symbol={symbol} onPress={() => handleSelect(symbol)} s={s} />
-                  ))}
-                </View>
               </View>
-            </View>
+            ) : null
           ) : null
         }
       />
@@ -177,8 +170,7 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+       borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
     paddingHorizontal: 16,
     height: 52,
@@ -197,8 +189,7 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: colors.surface,
-    gap: 12,
+       gap: 12,
   },
   resultItemPressed: {
     backgroundColor: colors.background,
@@ -246,8 +237,7 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   card: {
     width: '31%',
-    backgroundColor: colors.surface,
-    borderWidth: 1,
+       borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 10,
     padding: 10,
@@ -261,7 +251,7 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 8,
-  },
+     },
   cardSymbol: {
     fontSize: 13,
     fontWeight: '600',

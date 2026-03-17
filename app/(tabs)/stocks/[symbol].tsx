@@ -253,7 +253,7 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
         <View style={s.heading}>
           <Image
             source={{ uri: `https://img.logo.dev/ticker/${symbol}?token=pk_ZBCJebqoQXKBWVLhwcIBfg&retina=true&format=png` }}
-            style={s.logo}
+            style={[s.logo, symbol === 'AAPL' && scheme === 'dark' && { backgroundColor: '#F5F4EE' }]}
             defaultSource={FALLBACK_LOGO}
           />
           <View style={s.headingText}>

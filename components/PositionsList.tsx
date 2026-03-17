@@ -134,7 +134,7 @@ const rowStyles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   value: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '400',
     color: colors.text,
   },
   pnlRow: {

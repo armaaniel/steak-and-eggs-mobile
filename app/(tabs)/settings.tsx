@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { View, Text, Pressable, StyleSheet, useColorScheme, Modal, TextInput, ActivityIndicator, Animated as RNAnimated } from 'react-native'
+import { useState, useEffect } from 'react'
+import { View, Text, Pressable, StyleSheet, useColorScheme, Modal, TextInput, ActivityIndicator } from 'react-native'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
@@ -34,7 +34,7 @@ function Row({ icon, label, onPress, danger }: RowProps) {
   )
 }
 
-interface FloatingLabelInputProps {
+interface LabeledInputProps {
   label: string
   value: string
   onChangeText: (text: string) => void
@@ -42,50 +42,23 @@ interface FloatingLabelInputProps {
   colors: typeof Colors.light
 }
 
-function FloatingLabelInput({ label, value, onChangeText, secureTextEntry, colors }: FloatingLabelInputProps) {
-  const [isFocused, setIsFocused] = useState(false)
-  const animValue = useRef(new RNAnimated.Value(value ? 1 : 0)).current
-
-  useEffect(() => {
-    RNAnimated.timing(animValue, {
-      toValue: isFocused || value ? 1 : 0,
-      duration: 300,
-      useNativeDriver: false,
-    }).start()
-  }, [isFocused, value])
-
-  const labelTop = animValue.interpolate({ inputRange: [0, 1], outputRange: [14, 4] })
-  const labelSize = animValue.interpolate({ inputRange: [0, 1], outputRange: [15, 11] })
-
+function LabeledInput({ label, value, onChangeText, secureTextEntry, colors }: LabeledInputProps) {
   return (
     <View style={{
       backgroundColor: colors.background,
       borderWidth: 1,
-      borderColor: isFocused ? colors.textMuted : colors.border,
+      borderColor: colors.border,
       borderRadius: 10,
     }}>
-      <RNAnimated.Text style={{
-        position: 'absolute',
-        left: 12,
-        top: labelTop,
-        fontSize: labelSize,
-        color: colors.textHint,
-      }}>
+      <Text style={{ fontSize: 11, color: colors.textHint, paddingHorizontal: 12, paddingTop: 8 }}>
         {label}
-      </RNAnimated.Text>
+      </Text>
       <TextInput
-        style={{
-          padding: 12,
-          paddingTop: 20,
-          fontSize: 15,
-          color: colors.text,
-        }}
+        style={{ paddingHorizontal: 12, paddingTop: 2, paddingBottom: 10, fontSize: 15, color: colors.text }}
         value={value}
         onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
         autoCapitalize="none"
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
       />
     </View>
   )
@@ -125,7 +98,7 @@ export default function SettingsScreen() {
   async function handleLogout() {
     await AsyncStorage.removeItem('authToken')
     resetConsumer()
-    router.replace('/login')
+    router.replace('/welcome')
   }
 
   function openChangePassword() {
@@ -293,21 +266,21 @@ export default function SettingsScreen() {
               )}
             </View>
 
-            <FloatingLabelInput
+            <LabeledInput
               label="Current Password"
               value={currentPassword}
               onChangeText={(text) => { setCurrentPassword(text); setCpHasTyped(true) }}
               secureTextEntry
               colors={colors}
             />
-            <FloatingLabelInput
+            <LabeledInput
               label="New Password"
               value={newPassword}
               onChangeText={(text) => { setNewPassword(text); setCpHasTyped(true) }}
               secureTextEntry
               colors={colors}
             />
-            <FloatingLabelInput
+            <LabeledInput
               label="Confirm New Password"
               value={confirmPassword}
               onChangeText={(text) => { setConfirmPassword(text); setCpHasTyped(true) }}
@@ -352,7 +325,7 @@ export default function SettingsScreen() {
               This action is permanent and cannot be undone. All your data, positions, and history will be deleted immediately.
             </Text>
 
-            <FloatingLabelInput
+            <LabeledInput
               label="Enter your password to confirm"
               value={deletePassword}
               onChangeText={(text) => { setDeletePassword(text); setDaHasTyped(true) }}

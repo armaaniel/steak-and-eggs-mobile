@@ -40,9 +40,10 @@ function DetailRow({ label, value, valueColor, colors }: {
   )
 }
 
-function TransactionRow({ item, colors, isLast, isExpanded, onPress }: {
+function TransactionRow({ item, colors, scheme, isLast, isExpanded, onPress }: {
   item: Activity
   colors: typeof Colors.light
+  scheme: string | null | undefined
   isLast: boolean
   isExpanded: boolean
   onPress: () => void
@@ -144,6 +145,7 @@ export default function ActivityScreen() {
           <TransactionRow
             item={item}
             colors={colors}
+            scheme={scheme}
             isLast={index === (activityData?.length ?? 0) - 1}
             isExpanded={expandedId === item.id}
             onPress={() => handlePress(item.id)}

@@ -72,7 +72,7 @@ export default function SearchScreen() {
     async function searchStocks() {
       setError(null)
       const token = await AsyncStorage.getItem('authToken')
-      if (!token) { router.replace('/login'); return }
+      if (!token) { router.replace('/welcome'); return }
 
       try {
         const response = await fetch(`${API}/search?q=${encodeURIComponent(debouncedSearchTerm)}`, {
@@ -81,7 +81,7 @@ export default function SearchScreen() {
         if (response.status === 401) {
           await AsyncStorage.removeItem('authToken')
           resetConsumer()
-          router.replace('/login')
+          router.replace('/welcome')
           return
         }
         if (!response.ok) throw new Error(`${response.status}`)

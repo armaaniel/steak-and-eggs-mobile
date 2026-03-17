@@ -90,25 +90,27 @@ export default function AuthForm({ mode }: AuthFormProps) {
         </View>
       )}
 
-      <TextInput
-        style={s.input}
-        placeholder="Username"
-        placeholderTextColor={colors.textHint}
-        autoCapitalize="none"
-        autoCorrect={false}
-        value={username}
-        onChangeText={(text) => { setUsername(text); setHasTyped(true) }}
-      />
+      <View style={s.labeledInput}>
+        <Text style={s.inputLabel}>Username</Text>
+        <TextInput
+          style={s.inputField}
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={username}
+          onChangeText={(text) => { setUsername(text); setHasTyped(true) }}
+        />
+      </View>
 
-      <TextInput
-        style={s.input}
-        placeholder="Password"
-        placeholderTextColor={colors.textHint}
-        secureTextEntry
-        autoCapitalize="none"
-        value={password}
-        onChangeText={(text) => { setPassword(text); setHasTyped(true) }}
-      />
+      <View style={s.labeledInput}>
+        <Text style={s.inputLabel}>Password</Text>
+        <TextInput
+          style={s.inputField}
+          secureTextEntry
+          autoCapitalize="none"
+          value={password}
+          onChangeText={(text) => { setPassword(text); setHasTyped(true) }}
+        />
+      </View>
 
       <Pressable
         style={({ pressed }) => [s.button, pressed && s.buttonPressed, isSubmitting && s.buttonDisabled]}
@@ -156,13 +158,22 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     color: colors.negative,
     fontSize: 14,
   },
-  input: {
+  labeledInput: {
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 8,
+  },
+  inputLabel: {
+    fontSize: 11,
+    color: colors.textHint,
     paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingTop: 8,
+  },
+  inputField: {
+    paddingHorizontal: 14,
+    paddingTop: 2,
+    paddingBottom: 10,
     fontSize: 16,
     color: colors.text,
   },

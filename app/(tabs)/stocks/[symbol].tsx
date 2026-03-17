@@ -97,12 +97,12 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
   async function handle401() {
     await AsyncStorage.removeItem('authToken')
     resetConsumer()
-    router.replace('/login')
+    router.replace('/welcome')
   }
 
   async function getUserData() {
     const token = await AsyncStorage.getItem('authToken')
-    if (!token) { router.replace('/login'); return }
+    if (!token) { router.replace('/welcome'); return }
     try {
       const response = await fetch(`${API}/stocks/${symbol}/userdata`, {
         headers: { authToken: token },
@@ -119,7 +119,7 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
   useEffect(() => {
     async function getData() {
       const token = await AsyncStorage.getItem('authToken')
-      if (!token) { router.replace('/login'); return }
+      if (!token) { router.replace('/welcome'); return }
 
       setTickerNotFound(false)
       try {

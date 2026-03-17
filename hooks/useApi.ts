@@ -26,12 +26,12 @@ export function usePortfolio() {
     queryKey: KEYS.portfolio,
     queryFn: async () => {
       const token = await getToken()
-      if (!token) { router.replace('/login'); return null }
+      if (!token) { router.replace('/welcome'); return null }
       const res = await fetch(`${API}/portfoliodata`, { headers: { authToken: token } })
       if (res.status === 401) {
         await AsyncStorage.removeItem('authToken')
         resetConsumer()
-        router.replace('/login')
+        router.replace('/welcome')
         return null
       }
       if (!res.ok) throw new Error('Unable to fetch portfolio')
@@ -46,12 +46,12 @@ export function usePortfolioChart() {
     queryKey: KEYS.portfolioChart,
     queryFn: async () => {
       const token = await getToken()
-      if (!token) { router.replace('/login'); return [] as ChartData[] }
+      if (!token) { router.replace('/welcome'); return [] as ChartData[] }
       const res = await fetch(`${API}/portfoliochart`, { headers: { authToken: token } })
       if (res.status === 401) {
         await AsyncStorage.removeItem('authToken')
         resetConsumer()
-        router.replace('/login')
+        router.replace('/welcome')
         return [] as ChartData[]
       }
       if (!res.ok) {
@@ -73,12 +73,12 @@ export function useActivity() {
     queryKey: KEYS.activity,
     queryFn: async () => {
       const token = await getToken()
-      if (!token) { router.replace('/login'); return [] }
+      if (!token) { router.replace('/welcome'); return [] }
       const res = await fetch(`${API}/activitydata`, { headers: { authToken: token } })
       if (res.status === 401) {
         await AsyncStorage.removeItem('authToken')
         resetConsumer()
-        router.replace('/login')
+        router.replace('/welcome')
         return []
       }
       if (!res.ok) throw new Error('Unable to fetch transactions')

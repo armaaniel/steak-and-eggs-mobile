@@ -36,11 +36,11 @@ export default function RootLayout() {
 	useEffect(() => {
 	  if (!isReady) return
 	  const inTabs = segments[0] === '(tabs)'
-	  const inAuth = segments[0] === 'login' || segments[0] === 'signup'
+	  const inAuth = segments[0] === 'login' || segments[0] === 'signup' || segments[0] === 'welcome'
 	  if (token && inAuth) {
 	    router.replace('/(tabs)')
 	  } else if (!token && !inAuth) {
-	    router.replace('/login')
+	    router.replace('/welcome')
 	  }
 	}, [isReady, token, segments])
 
@@ -53,7 +53,8 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background }}>
       <QueryClientProvider client={queryClient}>
       <BottomSheetModalProvider>
-      <Stack initialRouteName="login" screenOptions={{ animation: 'fade' }}>
+      <Stack initialRouteName="welcome" screenOptions={{ animation: 'fade' }}>
+        <Stack.Screen name="welcome" options={{ headerShown: false, contentStyle: bg }} />
         <Stack.Screen name="login" options={{ headerShown: false, contentStyle: bg }} />
         <Stack.Screen name="signup" options={{ headerShown: false, contentStyle: bg }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false, contentStyle: bg }} />

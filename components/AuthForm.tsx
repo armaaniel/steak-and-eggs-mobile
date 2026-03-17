@@ -9,8 +9,31 @@ import {
   ActivityIndicator,
 } from 'react-native'
 import { Link, useRouter } from 'expo-router'
+import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import Svg, { Ellipse, Path, G, Circle, Text as SvgText } from 'react-native-svg'
 import { Colors } from '@/constants/theme'
+
+function Logo({ textColor }: { textColor: string }) {
+  return (
+    <Svg width={180} height={110} viewBox="0 0 364 224">
+      <Ellipse cx="182" cy="112" rx="180" ry="110" fill="#f5f5f5" stroke="#d3d3d3" strokeWidth="4" />
+      <Path d="m122 82c-20-10 40-30 120 0 30 20 20 60-10 70-70 20-130 0-140-30-10-20 10-30 30-40" fill="#8b4513" stroke="#654321" strokeWidth="3" />
+      <G stroke="#472400" strokeWidth="3">
+        <Path d="m142 92 60 10" />
+        <Path d="m162 112 60 10" />
+        <Path d="m152 132 60 10" />
+      </G>
+      <Circle cx="142" cy="62" r="35" fill="#fff" stroke="#e6e6e6" strokeWidth="2" />
+      <Circle cx="142" cy="62" r="12" fill="#ffd700" />
+      <Circle cx="232" cy="52" r="30" fill="#fff" stroke="#e6e6e6" strokeWidth="2" />
+      <Circle cx="232" cy="52" r="10" fill="#ffd700" />
+      <SvgText x="182" y="222" fill={textColor} fontFamily="Arial" fontSize="32" fontWeight="bold" textAnchor="middle">
+        STEAK &amp; EGGS
+      </SvgText>
+    </Svg>
+  )
+}
 
 interface AuthFormProps {
   mode: 'login' | 'signup'
@@ -82,6 +105,10 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   return (
     <View style={s.container}>
+      <Pressable onPress={() => router.back()} style={s.backButton}>
+        <Ionicons name="chevron-back" size={24} color={colors.text} />
+      </Pressable>
+      <View style={s.logoWrap}><Logo textColor={scheme === 'dark' ? '#E07B3C' : '#333333'} /></View>
       <Text style={s.heading}>{isLogin ? 'Welcome Back' : 'Sign Up'}</Text>
 
       {showError && (
@@ -140,6 +167,18 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 24,
     gap: 16,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 60,
+    left: 16,
+    zIndex: 1,
+    padding: 4,
+  },
+  logoWrap: {
+    position: 'absolute',
+    top: 130,
+    alignSelf: 'center',
   },
   heading: {
     fontSize: 28,

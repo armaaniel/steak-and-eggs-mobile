@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import {
   View,
   Text,
+  Image,
   FlatList,
   Pressable,
   StyleSheet,
@@ -212,18 +213,21 @@ function TrendIllustration({ color, accent }: { color: string; accent: string })
 const cards = [
   {
     title: 'Paper Trading,\nReal Experience',
-    subtitle: 'Practice buying and selling stocks with simulated funds. No real money involved — ever.',
+    subtitle: 'Practice buying and selling stocks with simulated funds. No real money involved, ever.',
     illustration: 'chart',
+    image: require('@/assets/onboarding-home.png'),
   },
   {
     title: 'Market Data,\nZero Risk',
     subtitle: '15-minute delayed prices so you can learn how the market moves without risking a cent.',
     illustration: 'clock',
+    image: require('@/assets/onboarding-stocks.png'),
   },
   {
     title: 'Track Your\nPerformance',
     subtitle: 'Build a portfolio, monitor your positions, and see how your strategy plays out over time.',
     illustration: 'trend',
+    image: require('@/assets/onboarding-activity.png'),
   },
 ]
 
@@ -266,7 +270,7 @@ export default function WelcomeScreen() {
         renderItem={({ item }) => (
           <View style={s.card}>
             <View style={s.illustrationWrap}>
-              {renderIllustration(item.illustration)}
+              <Image source={item.image} style={s.cardImage} resizeMode="contain" />
             </View>
             <Text style={s.cardTitle}>{item.title}</Text>
             <Text style={s.cardSubtitle}>{item.subtitle}</Text>
@@ -313,7 +317,12 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
   },
   illustrationWrap: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
+  },
+  cardImage: {
+    width: width - 64,
+    height: (width - 64) * (1100 / 1080),
+    borderRadius: 12,
   },
   cardTitle: {
     fontSize: 32,

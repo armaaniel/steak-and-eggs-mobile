@@ -43,7 +43,7 @@ function PositionRow({ position, prices, isLast }: { position: Positions; prices
       <View style={s.middle}>
         <View style={s.symbolRow}>
           <Text style={s.symbol}>{position.symbol}</Text>
-          <Text style={s.shares}>{position.shares} @ ${toCurrency(position.average_price)}</Text>
+          <Text style={s.shares}>{position.shares} shares</Text>
         </View>
         <View style={s.priceRow}>
           <Text style={s.price}>${toCurrency(price)}</Text>

@@ -33,8 +33,11 @@ export default function PositionCard({ position, price }: Props) {
           defaultSource={FALLBACK_LOGO}
         />
         <View>
-          <Text style={s.symbol}>{position.symbol}</Text>
-          <Text style={s.shares}>{position.shares} shares @ ${toCurrency(position.average_price)}</Text>
+          <View style={s.symbolRow}>
+            <Text style={s.symbol}>{position.symbol}</Text>
+            <Text style={s.shares}>{position.shares} shares</Text>
+          </View>
+          <Text style={s.avg}>Average: ${toCurrency(position.average_price)}</Text>
         </View>
       </View>
 
@@ -43,7 +46,7 @@ export default function PositionCard({ position, price }: Props) {
         <Text style={s.value}>{value != null ? `$${toCurrency(value)}` : '—'}</Text>
         <View style={s.pnlRow}>
           <Text style={[s.pnl, { color: pnlColor }]}>
-            {pnl != null ? `$${toPnlCurrency(pnl)}` : '—'}
+            {pnl != null ? `${pnlIsPositive ? '+' : ''}$${toPnlCurrency(pnl)}` : '—'}
           </Text>
           <Text style={[s.pnl, { color: pnlColor }]}>{pnlChange ?? '—'}</Text>
         </View>
@@ -75,12 +78,21 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     height: 36,
     borderRadius: 8,
   },
+  symbolRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
+  },
   symbol: {
     fontSize: 15,
     fontWeight: '600',
     color: colors.text,
   },
   shares: {
+    fontSize: 12,
+    color: colors.textMuted,
+  },
+  avg: {
     fontSize: 12,
     color: colors.textMuted,
   },

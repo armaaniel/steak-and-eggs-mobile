@@ -19,6 +19,10 @@ function PositionRow({ position, prices, isLast }: { position: Positions; prices
 
   const price = prices[position.symbol] ?? position.price
   const totalValue = price * position.shares
+  const dailyChange = toPercent(price, position.open)
+  const dailyIsPositive = dailyChange?.startsWith('+')
+  const dailyColor = dailyChange == null ? colors.textMuted : dailyIsPositive ? colors.positive : colors.negative
+
   const pnlChange = toPercent(price, position.average_price)
   const pnlIsPositive = pnlChange?.startsWith('+')
   const pnlColor = pnlChange == null ? colors.textMuted : pnlIsPositive ? colors.positive : colors.negative
@@ -39,9 +43,12 @@ function PositionRow({ position, prices, isLast }: { position: Positions; prices
       <View style={s.middle}>
         <View style={s.symbolRow}>
           <Text style={s.symbol}>{position.symbol}</Text>
-          <Text style={s.shares}>{position.shares} shares</Text>
+          <Text style={s.shares}>{position.shares} shares @ ${toCurrency(position.average_price)}</Text>
         </View>
-        <Text style={s.price}>${toCurrency(price)}</Text>
+        <View style={s.priceRow}>
+          <Text style={s.price}>${toCurrency(price)}</Text>
+          <Text style={[s.daily, { color: dailyColor }]}>{dailyChange ?? '—'}</Text>
+        </View>
       </View>
       <View style={s.right}>
         <Text style={s.value}>${toCurrency(totalValue)}</Text>
@@ -122,10 +129,19 @@ const rowStyles = (colors: typeof Colors.light) => StyleSheet.create({
     fontSize: 12,
     color: colors.textMuted,
   },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
+  },
   price: {
     fontSize: 15,
     fontWeight: '600',
     color: colors.text,
+  },
+  daily: {
+    fontSize: 12,
+    fontWeight: '500',
   },
   right: {
     alignItems: 'flex-end',

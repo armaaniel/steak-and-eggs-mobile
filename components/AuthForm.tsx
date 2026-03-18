@@ -52,6 +52,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [error, setError] = useState<string | null>(null)
   const [hasTyped, setHasTyped] = useState(false)
   const [demoError, setDemoError] = useState<string | null>(null)
+  const [demoLoading, setDemoLoading] = useState(false)
 
   const isLogin = mode === 'login'
   const showError = !!error && !isSubmitting && !hasTyped
@@ -168,8 +169,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
       </Animated.View>
 
       {!isLogin && (
-        <Pressable style={s.tryDemoBtn} onPress={async () => {
+        <Pressable style={s.tryDemoBtn} disabled={demoLoading} onPress={async () => {
           setDemoError(null)
+          setDemoLoading(true)
           try {
             const response = await fetch(`${API}/demo`, { method: 'POST' })
             if (response.ok) {
@@ -183,9 +185,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
             }
           } catch {
             setDemoError('Something went wrong')
+          } finally {
+            setDemoLoading(false)
           }
         }}>
-          <Text style={s.tryDemo}>Try Demo</Text>
+          <Text style={[s.tryDemo, demoLoading && { color: colors.textMuted }]}>Try Demo</Text>
           {demoError && (
             <Animated.Text
               entering={FadeIn.duration(200)}
@@ -218,7 +222,7 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   logoWrap: {
     position: 'absolute',
-    top: 130,
+    top: 120,
     alignSelf: 'center',
   },
   heading: {

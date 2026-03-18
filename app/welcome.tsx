@@ -11,6 +11,7 @@ import {
   ViewToken,
   ActivityIndicator,
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -286,7 +287,7 @@ export default function WelcomeScreen() {
   }
 
   return (
-    <View style={s.container}>
+    <SafeAreaView style={s.container}>
       <FlatList
         data={cards}
         horizontal
@@ -349,7 +350,7 @@ export default function WelcomeScreen() {
           </Animated.View>
         </Pressable>
       </View>
-    </View>
+    </SafeAreaView>
   )
 }
 
@@ -408,13 +409,13 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
   loginButton: {
     backgroundColor: '#30302E',
     borderRadius: 10,
-    paddingVertical: 16,
+    paddingVertical: 12,
     alignItems: 'center',
   },
   signupButton: {
     backgroundColor: '#30302E',
     borderRadius: 10,
-    paddingVertical: 16,
+    paddingVertical: 12,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: colors.border,
@@ -435,7 +436,7 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
   demoButton: {
     backgroundColor: colors.accent,
     borderRadius: 10,
-    height: 54,
+    height: 46,
     justifyContent: 'center',
     alignItems: 'center',
   },

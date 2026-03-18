@@ -221,7 +221,7 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   logoWrap: {
     position: 'absolute',
-    top: 114,
+    top: 106,
     alignSelf: 'center',
   },
   heading: {

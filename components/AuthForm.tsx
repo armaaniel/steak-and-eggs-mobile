@@ -189,8 +189,10 @@ export default function AuthForm({ mode }: AuthFormProps) {
             setDemoLoading(false)
           }
         }}>
-          <Text style={s.tryDemo}>Try Demo</Text>
-          {demoLoading && <ActivityIndicator size="small" color={colors.accent} style={{ marginTop: 6 }} />}
+          <Animated.View layout={Layout.duration(200)} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Text style={s.tryDemo}>Try Demo</Text>
+            {demoLoading && <ActivityIndicator size="small" color={colors.accent} />}
+          </Animated.View>
           {demoError && (
             <Animated.Text
               entering={FadeIn.duration(200)}

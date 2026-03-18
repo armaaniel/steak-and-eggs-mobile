@@ -287,7 +287,7 @@ export default function WelcomeScreen() {
   }
 
   return (
-    <SafeAreaView style={s.container}>
+    <SafeAreaView style={s.container} edges={['top']}>
       <FlatList
         data={cards}
         horizontal

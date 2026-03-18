@@ -306,8 +306,10 @@ export default function WelcomeScreen() {
             <View style={s.illustrationWrap}>
               <Image source={item.image} style={s.cardImage} resizeMode="contain" />
             </View>
-            <Text style={s.cardTitle}>{item.title}</Text>
-            <Text style={s.cardSubtitle}>{item.subtitle}</Text>
+            <View style={s.cardText}>
+              <Text style={s.cardTitle}>{item.title}</Text>
+              <Text style={s.cardSubtitle}>{item.subtitle}</Text>
+            </View>
           </View>
         )}
       />
@@ -379,11 +381,14 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
     height: (width - 64) * (1100 / 1080),
     borderRadius: 12,
   },
+  cardText: {
+    flexDirection: 'column',
+    gap: 8,
+  },
   cardTitle: {
     fontSize: 32,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: 16,
     lineHeight: 40,
   },
   cardSubtitle: {

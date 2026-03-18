@@ -69,7 +69,7 @@ export default function StockScreen() {
 
 function StockScreenInner({ symbol }: { symbol: string | undefined }) {
   const router = useRouter()
-  const { logout } = useAuth()
+  const { logout, username } = useAuth()
   const scheme = useColorScheme()
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
   const API = process.env.EXPO_PUBLIC_API_URL
@@ -127,11 +127,12 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
           const data = await tickerResponse.json()
           setTickerData(data)
           // Save to recents
-          const raw = await AsyncStorage.getItem('recentStocks')
+          const recentsKey = `recentStocks:${username}`
+          const raw = await AsyncStorage.getItem(recentsKey)
           const recents: { symbol: string; name: string }[] = raw ? JSON.parse(raw) : []
           const filtered = recents.filter((r) => r.symbol !== symbol)
           filtered.unshift({ symbol: symbol!, name: data.name ?? symbol })
-          await AsyncStorage.setItem('recentStocks', JSON.stringify(filtered.slice(0, 12)))
+          await AsyncStorage.setItem(recentsKey, JSON.stringify(filtered.slice(0, 12)))
         } else if (tickerResponse.status === 401) {
           await logout()
         } else {

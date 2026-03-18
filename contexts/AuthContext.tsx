@@ -4,6 +4,7 @@ import { resetConsumer } from '@/consumer'
 
 interface AuthContextType {
   token: string | null
+  username: string | null
   isReady: boolean
   login: (token: string, username: string) => Promise<void>
   logout: () => Promise<void>
@@ -13,11 +14,16 @@ const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null)
+  const [username, setUsername] = useState<string | null>(null)
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    AsyncStorage.getItem('authToken').then((stored) => {
-      setToken(stored)
+    Promise.all([
+      AsyncStorage.getItem('authToken'),
+      AsyncStorage.getItem('username'),
+    ]).then(([storedToken, storedUsername]) => {
+      setToken(storedToken)
+      setUsername(storedUsername)
       setIsReady(true)
     })
   }, [])
@@ -26,16 +32,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem('authToken', newToken)
     await AsyncStorage.setItem('username', username)
     setToken(newToken)
+    setUsername(username)
   }, [])
 
   const logout = useCallback(async () => {
     await AsyncStorage.removeItem('authToken')
     resetConsumer()
     setToken(null)
+    setUsername(null)
   }, [])
 
   return (
-    <AuthContext.Provider value={{ token, isReady, login, logout }}>
+    <AuthContext.Provider value={{ token, username, isReady, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

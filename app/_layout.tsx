@@ -28,17 +28,12 @@ function RootNavigator() {
 
   return (
     <>
-      {token ? (
-        <Stack screenOptions={{ animation: 'fade' }}>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false, contentStyle: bg }} />
-        </Stack>
-      ) : (
-        <Stack initialRouteName="welcome" screenOptions={{ animation: 'fade' }}>
-          <Stack.Screen name="welcome" options={{ headerShown: false, contentStyle: bg }} />
-          <Stack.Screen name="login" options={{ headerShown: false, contentStyle: bg }} />
-          <Stack.Screen name="signup" options={{ headerShown: false, contentStyle: bg }} />
-        </Stack>
-      )}
+      <Stack screenOptions={{ animation: 'fade' }}>
+        <Stack.Screen name="welcome" options={{ headerShown: false, contentStyle: bg }} redirect={!!token} />
+        <Stack.Screen name="login" options={{ headerShown: false, contentStyle: bg }} redirect={!!token} />
+        <Stack.Screen name="signup" options={{ headerShown: false, contentStyle: bg }} redirect={!!token} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false, contentStyle: bg }} redirect={!token} />
+      </Stack>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
     </>
   )

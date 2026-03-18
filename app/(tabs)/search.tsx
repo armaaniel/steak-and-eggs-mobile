@@ -41,7 +41,7 @@ function StockCard({ symbol, onPress, s, scheme }: { symbol: string; onPress: ()
 
 export default function SearchScreen() {
   const router = useRouter()
-  const { logout } = useAuth()
+  const { logout, username } = useAuth()
   const scheme = useColorScheme()
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
   const API = process.env.EXPO_PUBLIC_API_URL
@@ -56,7 +56,7 @@ export default function SearchScreen() {
   // Reload recents every time the tab is focused
   useFocusEffect(
     useCallback(() => {
-      AsyncStorage.getItem('recentStocks').then((raw) => {
+      AsyncStorage.getItem(`recentStocks:${username}`).then((raw) => {
         if (raw) setRecentStocks(JSON.parse(raw))
       })
     }, [])
@@ -139,18 +139,20 @@ export default function SearchScreen() {
               <Text style={s.emptyText}>{error ?? 'No stocks found'}</Text>
             </View>
           ) : !searchTerm ? (
-            recentStocks.length > 0 ? (
               <View style={s.sections}>
                 <View style={s.section}>
                   <Text style={s.sectionHeader}>Recent</Text>
-                  <View style={s.grid}>
-                    {recentStocks.map(({ symbol }) => (
-                      <StockCard key={symbol} symbol={symbol} onPress={() => handleSelect(symbol)} s={s} scheme={scheme} />
-                    ))}
-                  </View>
+                  {recentStocks.length > 0 ? (
+                    <View style={s.grid}>
+                      {recentStocks.map(({ symbol }) => (
+                        <StockCard key={symbol} symbol={symbol} onPress={() => handleSelect(symbol)} s={s} scheme={scheme} />
+                      ))}
+                    </View>
+                  ) : (
+                    <Text style={s.emptyText}>Stocks you look up will appear here</Text>
+                  )}
                 </View>
               </View>
-            ) : null
           ) : null
         }
       />

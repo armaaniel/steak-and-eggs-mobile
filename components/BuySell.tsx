@@ -213,14 +213,19 @@ export default function BuySell({ getUserData, balance, position, price, name, s
     const blockSubmit = isSubmitting || (isBuy && hasInsufficientFunds) || (!isBuy && hasInsufficientShares)
 
     return (
-      <View style={s.card}>
+      <View style={[s.card, { gap: 16 }]}>
         <Pressable style={s.backBtn} onPress={() => setStep(1)}>
           <Text style={s.backBtnText}><Text style={s.backArrow}>←</Text> back</Text>
         </Pressable>
 
         <View style={s.row}>
           <Text style={s.rowLabel}>Order</Text>
-          <Text style={s.rowValue}>{isBuy ? `Buy ${symbol}` : `Sell ${symbol}`}</Text>
+          <Text style={s.rowValue}>{isBuy ? 'Buy' : 'Sell'}</Text>
+        </View>
+
+        <View style={s.row}>
+          <Text style={s.rowLabel}>Symbol</Text>
+          <Text style={s.rowValue}>{symbol}</Text>
         </View>
 
         <View style={s.row}>
@@ -330,6 +335,7 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     borderColor: colors.border,
     padding: 16,
     gap: 12,
+    minHeight: 304,
   },
   toggle: {
     flexDirection: 'row',

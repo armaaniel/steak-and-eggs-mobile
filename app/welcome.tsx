@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useAuth } from '@/contexts/AuthContext'
 import Svg, {
   Path,
   Circle,
@@ -241,6 +241,7 @@ const cards = [
 
 export default function WelcomeScreen() {
   const router = useRouter()
+  const { login } = useAuth()
   const scheme = useColorScheme()
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
   const { width } = useWindowDimensions()
@@ -256,9 +257,7 @@ export default function WelcomeScreen() {
       const response = await fetch(`${API}/demo`, { method: 'POST' })
       if (response.ok) {
         const data = await response.json()
-        await AsyncStorage.setItem('authToken', data.token)
-        await AsyncStorage.setItem('username', data.username)
-        router.replace('/(tabs)')
+        await login(data.token, data.username)
       } else {
         const data = await response.json()
         setDemoError(data.error || 'Something went wrong')

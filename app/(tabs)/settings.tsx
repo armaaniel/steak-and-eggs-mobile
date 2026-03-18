@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { View, Text, Pressable, StyleSheet, useColorScheme, Modal, TextInput, ActivityIndicator } from 'react-native'
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Colors } from '@/constants/theme'
@@ -64,18 +64,10 @@ function LabeledInput({ label, value, onChangeText, secureTextEntry, colors }: L
 }
 
 export default function SettingsScreen() {
-  const { logout } = useAuth()
+  const { logout, username } = useAuth()
   const scheme = useColorScheme()
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
   const s = makeStyles(colors)
-
-  const [username, setUsername] = useState('')
-
-  useEffect(() => {
-    AsyncStorage.getItem('username').then((name) => {
-      if (name) setUsername(name)
-    })
-  }, [])
 
   // Change password state
   const [cpVisible, setCpVisible] = useState(false)
@@ -93,6 +85,24 @@ export default function SettingsScreen() {
   const [daError, setDaError] = useState<string | null>(null)
   const [daSubmitting, setDaSubmitting] = useState(false)
   const [daHasTyped, setDaHasTyped] = useState(false)
+
+  const cpMessageOpacity = useSharedValue(0)
+  const cpShowMessage = !!(cpSuccess || cpError) && !cpHasTyped && !cpSubmitting
+  useEffect(() => {
+    cpMessageOpacity.value = withTiming(cpShowMessage ? 1 : 0, { duration: 200 })
+  }, [cpShowMessage])
+  const cpMessageStyle = useAnimatedStyle(() => ({
+    opacity: cpMessageOpacity.value,
+  }))
+
+  const daMessageOpacity = useSharedValue(0)
+  const daShowMessage = !!daError && !daHasTyped && !daSubmitting
+  useEffect(() => {
+    daMessageOpacity.value = withTiming(daShowMessage ? 1 : 0, { duration: 200 })
+  }, [daShowMessage])
+  const daMessageStyle = useAnimatedStyle(() => ({
+    opacity: daMessageOpacity.value,
+  }))
 
   async function handleLogout() {
     await logout()
@@ -252,15 +262,9 @@ export default function SettingsScreen() {
           <View style={s.modalContent}>
             <View style={s.modalHeader}>
               <Text style={s.modalTitle}>Change password</Text>
-              {(cpSuccess || cpError) && !cpHasTyped && !cpSubmitting && (
-                <Animated.Text
-                  entering={FadeIn.duration(200)}
-                  exiting={FadeOut.duration(200)}
-                  style={{ color: colors.textMuted, fontSize: 12 }}
-                >
-                  {cpSuccess ?? cpError}
-                </Animated.Text>
-              )}
+              <Animated.Text style={[{ color: colors.textMuted, fontSize: 12 }, cpMessageStyle]}>
+                {cpSuccess ?? cpError}
+              </Animated.Text>
             </View>
 
             <LabeledInput
@@ -308,15 +312,9 @@ export default function SettingsScreen() {
           <View style={s.modalContent}>
             <View style={s.modalHeader}>
               <Text style={s.modalTitle}>Delete account</Text>
-              {daError && !daHasTyped && !daSubmitting && (
-                <Animated.Text
-                  entering={FadeIn.duration(200)}
-                  exiting={FadeOut.duration(200)}
-                  style={{ color: colors.textMuted, fontSize: 12 }}
-                >
-                  {daError}
-                </Animated.Text>
-              )}
+              <Animated.Text style={[{ color: colors.textMuted, fontSize: 12 }, daMessageStyle]}>
+                {daError}
+              </Animated.Text>
             </View>
             <Text style={s.warningText}>
               This action is permanent and cannot be undone. All your data, positions, and history will be deleted immediately.

@@ -292,7 +292,7 @@ export default function WelcomeScreen() {
   }
 
   return (
-    <SafeAreaView style={s.container} edges={['top']}>
+    <SafeAreaView style={s.container} edges={['top', 'bottom']}>
       <FlatList
         data={cards}
         horizontal
@@ -408,7 +408,6 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
   },
   buttons: {
     paddingHorizontal: 24,
-    paddingBottom: 48,
     gap: 12,
   },
   loginButton: {

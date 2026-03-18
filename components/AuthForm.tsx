@@ -189,7 +189,10 @@ export default function AuthForm({ mode }: AuthFormProps) {
             setDemoLoading(false)
           }
         }}>
-          <Text style={[s.tryDemo, demoLoading && { color: colors.textMuted }]}>Try Demo</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Text style={s.tryDemo}>Try Demo</Text>
+            {demoLoading && <ActivityIndicator size="small" color={colors.accent} />}
+          </View>
           {demoError && (
             <Animated.Text
               entering={FadeIn.duration(200)}
@@ -222,7 +225,7 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   logoWrap: {
     position: 'absolute',
-    top: 120,
+    top: 130,
     alignSelf: 'center',
   },
   heading: {

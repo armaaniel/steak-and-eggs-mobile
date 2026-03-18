@@ -262,10 +262,10 @@ export default function WelcomeScreen() {
       } else {
         const data = await response.json()
         setDemoError(data.error || 'Something went wrong')
+        setDemoLoading(false)
       }
     } catch {
       setDemoError('Something went wrong, please try again')
-    } finally {
       setDemoLoading(false)
     }
   }
@@ -333,10 +333,10 @@ export default function WelcomeScreen() {
           onPress={handleDemo}
           disabled={demoLoading}
         >
-          <Animated.View layout={Layout.duration(200)} style={s.demoInner}>
+          <View style={s.demoInner}>
             {demoLoading
-              ? <Animated.View entering={FadeIn.duration(200)}><ActivityIndicator size="small" color="#FFFFFF" /></Animated.View>
-              : <Animated.Text layout={Layout.duration(200)} exiting={FadeOut.duration(200)} style={s.demoText}>Try Demo</Animated.Text>}
+              ? <ActivityIndicator size="small" color="#FFFFFF" />
+              : <Animated.Text entering={FadeIn.duration(200)} exiting={FadeOut.duration(200)} style={s.demoText}>Try Demo</Animated.Text>}
             {demoError && !demoLoading && (
               <Animated.Text
                 entering={FadeIn.duration(200)}
@@ -347,7 +347,7 @@ export default function WelcomeScreen() {
                 {demoError}
               </Animated.Text>
             )}
-          </Animated.View>
+          </View>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -442,7 +442,7 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
   },
   demoInner: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
     gap: 8,
   },
   demoText: {

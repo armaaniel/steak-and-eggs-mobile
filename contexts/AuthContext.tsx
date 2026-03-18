@@ -25,6 +25,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setToken(storedToken)
       setUsername(storedUsername)
       setIsReady(true)
+    }).catch(() => {
+      setIsReady(true)
     })
   }, [])
 

@@ -3,7 +3,7 @@ import { View, Text, Image, FlatList, Pressable, StyleSheet, useColorScheme } fr
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated'
 import { Colors } from '@/constants/theme'
-import { toCurrency, toPnl } from '@/utils'
+import { toCurrency, toPnl, stockLogoUrl } from '@/utils'
 import { useActivity } from '@/hooks/useApi'
 
 interface Activity {
@@ -76,7 +76,7 @@ function TransactionRow({ item, colors, scheme, isLast, isExpanded, onPress }: {
         {/* Icon */}
         {isTrade ? (
           <Image
-            source={{ uri: `https://img.logo.dev/ticker/${item.symbol}?token=pk_ZBCJebqoQXKBWVLhwcIBfg&retina=true&format=png` }}
+            source={{ uri: stockLogoUrl(item.symbol) }}
             style={[s.logo, item.symbol === 'AAPL' && scheme === 'dark' && { backgroundColor: '#F5F4EE' }]}
           />
         ) : (

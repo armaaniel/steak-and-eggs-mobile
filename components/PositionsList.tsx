@@ -1,10 +1,9 @@
 import { FlatList, View, Text, Image, Pressable, StyleSheet, useColorScheme } from 'react-native'
 import { useRouter } from 'expo-router'
 import { Colors } from '@/constants/theme'
-import { toCurrency, toPercent, toPnlCurrency } from '@/utils'
+import { toCurrency, toPercent, toPnlCurrency, stockLogoUrl } from '@/utils'
 import type { Positions, Prices, Error } from '@/types'
 
-const FALLBACK_LOGO = require('@/assets/images/icon.png')
 
 interface Props {
   positions?: Positions[]
@@ -36,9 +35,8 @@ function PositionRow({ position, prices, isLast }: { position: Positions; prices
       onPress={() => router.push(`/(tabs)/stocks/${position.symbol}` as any)}
     >
       <Image
-        source={{ uri: `https://img.logo.dev/ticker/${position.symbol}?token=pk_ZBCJebqoQXKBWVLhwcIBfg&retina=true&format=png` }}
+        source={{ uri: stockLogoUrl(position.symbol) }}
         style={[s.logo, position.symbol === 'AAPL' && scheme === 'dark' && { backgroundColor: '#F5F4EE' }]}
-        defaultSource={FALLBACK_LOGO}
       />
       <View style={s.middle}>
         <View style={s.symbolRow}>

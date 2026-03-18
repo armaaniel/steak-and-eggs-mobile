@@ -59,3 +59,8 @@ export const toPnlCurrency = (value: number | string | null | undefined) => {
   if (isNaN(number)) return 'N/A'
   return number.toLocaleString('en-us', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
+
+const LOGO_TOKEN = process.env.EXPO_PUBLIC_LOGO_TOKEN
+
+export const stockLogoUrl = (symbol: string) =>
+  `https://img.logo.dev/ticker/${symbol}?token=${LOGO_TOKEN}&retina=true&format=png`

@@ -216,26 +216,12 @@ function TrendIllustration({ color, accent }: { color: string; accent: string })
 
 // ─── Cards data ─────────────────────────────────────────────────────────────
 
-const cards = [
-  {
-    title: 'Paper Trading,\nReal Experience',
-    subtitle: 'Practice buying and selling stocks with simulated funds. No real money involved, ever.',
-    illustration: 'chart',
-    image: require('@/assets/onboarding-home.png'),
-  },
-  {
-    title: 'Market Data,\nZero Risk',
-    subtitle: '15-minute delayed prices so you can learn how the market moves without risking a cent.',
-    illustration: 'clock',
-    image: require('@/assets/onboarding-stocks.png'),
-  },
-  {
-    title: 'Track Your\nPerformance',
-    subtitle: 'Build a portfolio, monitor your positions, and see how your strategy performs over time.',
-    illustration: 'trend',
-    image: require('@/assets/onboarding-activity.png'),
-  },
-]
+const homeImageDark = require('@/assets/onboarding-home.png')
+const homeImageLight = require('@/assets/homelight.png')
+const stocksImageDark = require('@/assets/onboarding-stocks.png')
+const stocksImageLight = require('@/assets/stockslight.png')
+const activityImageDark = require('@/assets/onboarding-activity.png')
+const activityImageLight = require('@/assets/activitylight.png')
 
 // ─── Screen ─────────────────────────────────────────────────────────────────
 
@@ -248,6 +234,26 @@ export default function WelcomeScreen() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [demoLoading, setDemoLoading] = useState(false)
   const [demoError, setDemoError] = useState<string | null>(null)
+  const cards = [
+    {
+      title: 'Paper Trading,\nReal Experience',
+      subtitle: 'Practice buying and selling stocks with simulated funds. No real money involved, ever.',
+      illustration: 'chart',
+      image: scheme === 'dark' ? homeImageDark : homeImageLight,
+    },
+    {
+      title: 'Market Data,\nZero Risk',
+      subtitle: '15-minute delayed prices so you can learn how the market moves without risking a cent.',
+      illustration: 'clock',
+      image: scheme === 'dark' ? stocksImageDark : stocksImageLight,
+    },
+    {
+      title: 'Track Your\nPerformance',
+      subtitle: 'Build a portfolio, monitor your positions, and see how your strategy performs over time.',
+      illustration: 'trend',
+      image: scheme === 'dark' ? activityImageDark : activityImageLight,
+    },
+  ]
   const s = styles(colors, width)
 
   async function handleDemo() {
@@ -428,7 +434,7 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
     fontWeight: '600',
   },
   signupText: {
-    color: colors.text,
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },

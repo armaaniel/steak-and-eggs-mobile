@@ -14,7 +14,7 @@ import ReAnimated, { FadeIn, Layout } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Colors } from '@/constants/theme'
-import { toReadable, toCurrency, toPercent } from '@/utils'
+import { toReadable, toCurrency, toPercent, stockLogoUrl } from '@/utils'
 import { getConsumer } from '@/consumer'
 import { useAuth } from '@/contexts/AuthContext'
 import Chart from '@/components/Chart'
@@ -22,8 +22,6 @@ import BuySell from '@/components/BuySell'
 import PositionCard from '@/components/PositionCard'
 import type { TickerData, UserData, ChartData, Price, Open } from '@/types'
 
-// TODO: replace with a proper fallback-logo asset
-const FALLBACK_LOGO = require('@/assets/images/icon.png')
 
 const FADE_DURATION = 250
 
@@ -249,9 +247,8 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
         {/* 1. Logo + symbol + name + back button */}
         <View style={s.heading}>
           <Image
-            source={{ uri: `https://img.logo.dev/ticker/${symbol}?token=pk_ZBCJebqoQXKBWVLhwcIBfg&retina=true&format=png` }}
+            source={{ uri: stockLogoUrl(symbol!) }}
             style={[s.logo, symbol === 'AAPL' && scheme === 'dark' && { backgroundColor: '#F5F4EE' }]}
-            defaultSource={FALLBACK_LOGO}
           />
           <View style={s.headingText}>
             <Text style={s.symbol}>{symbol}</Text>

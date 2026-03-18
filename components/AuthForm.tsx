@@ -81,7 +81,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
     try {
       setIsSubmitting(true)
-			console.log(`${API}/${mode}`)
       const response = await fetch(`${API}/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -95,9 +94,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
         const errorData = await response.json()
         setError(errorData.error)
       }
-    } catch (err) {
+    } catch {
       setError('Something went wrong, please try again')
-		  console.error('Auth error:', err);
     } finally {
       setIsSubmitting(false)
     }

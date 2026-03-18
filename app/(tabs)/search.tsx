@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useDebounce } from 'use-debounce'
 import { Colors } from '@/constants/theme'
+import { stockLogoUrl } from '@/utils'
 import { useAuth } from '@/contexts/AuthContext'
 import type { Error } from '@/types'
 
@@ -31,7 +32,7 @@ function StockCard({ symbol, onPress, s, scheme }: { symbol: string; onPress: ()
   return (
     <Pressable style={({ pressed }) => [s.card, pressed && s.cardPressed]} onPress={onPress}>
       <Image
-        source={{ uri: `https://img.logo.dev/ticker/${symbol}?token=pk_ZBCJebqoQXKBWVLhwcIBfg&retina=true&format=png` }}
+        source={{ uri: stockLogoUrl(symbol) }}
         style={[s.cardLogo, symbol === 'AAPL' && scheme === 'dark' && { backgroundColor: '#F5F4EE' }]}
       />
       <Text style={s.cardSymbol}>{symbol}</Text>

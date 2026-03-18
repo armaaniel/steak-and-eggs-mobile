@@ -1,10 +1,8 @@
 import { View, Text, Image, StyleSheet, useColorScheme } from 'react-native'
 import { Colors } from '@/constants/theme'
-import { toCurrency, toPercent, toPnlCurrency } from '@/utils'
+import { toCurrency, toPercent, toPnlCurrency, stockLogoUrl } from '@/utils'
 import type { Position, Price } from '@/types'
 
-// TODO: replace with a proper fallback-logo asset
-const FALLBACK_LOGO = require('@/assets/images/icon.png')
 
 interface Props {
   position: Position
@@ -13,7 +11,8 @@ interface Props {
 
 export default function PositionCard({ position, price }: Props) {
   const scheme = useColorScheme()
-  const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
+  const isDark = scheme === 'dark'
+  const colors = Colors[isDark ? 'dark' : 'light']
 
   const value = price != null ? Number(price) * Number(position.shares) : null
   const pnl = price != null ? (Number(price) - Number(position.average_price)) * Number(position.shares) : null
@@ -21,16 +20,15 @@ export default function PositionCard({ position, price }: Props) {
   const pnlIsPositive = pnlChange?.startsWith('+')
   const pnlColor = pnlChange == null ? colors.textMuted : pnlIsPositive ? colors.positive : colors.negative
 
-  const s = styles(colors)
+  const s = styles(colors, isDark)
 
   return (
     <View style={s.card}>
       {/* Left: logo + symbol + shares */}
       <View style={s.left}>
         <Image
-          source={{ uri: `https://img.logo.dev/ticker/${position.symbol}?token=pk_ZBCJebqoQXKBWVLhwcIBfg&retina=true&format=png` }}
+          source={{ uri: stockLogoUrl(position.symbol) }}
           style={[s.logo, position.symbol === 'AAPL' && scheme === 'dark' && { backgroundColor: '#F5F4EE' }]}
-          defaultSource={FALLBACK_LOGO}
         />
         <View>
           <View style={s.symbolRow}>
@@ -55,14 +53,15 @@ export default function PositionCard({ position, price }: Props) {
   )
 }
 
-const styles = (colors: typeof Colors.light) => StyleSheet.create({
+const styles = (colors: typeof Colors.light, isDark: boolean) => StyleSheet.create({
   card: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-       borderRadius: 12,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.border,
+    backgroundColor: isDark ? undefined : colors.surface,
     padding: 14,
     gap: 12,
   },

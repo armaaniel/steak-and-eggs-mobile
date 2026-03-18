@@ -390,7 +390,7 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 8,
-    paddingBottom: 32,
+    paddingBottom: 24,
   },
   dot: {
     width: 8,

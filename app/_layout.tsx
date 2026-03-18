@@ -17,9 +17,9 @@ export default function RootLayout() {
   const segments = useSegments()
   const [isReady, setIsReady] = useState(false)
   const [token, setToken] = useState<string | null>(null)
-	
+
 	// TOD: fix auth guard
-	
+
 	useEffect(() => {
 	    NavigationBar.setBackgroundColorAsync(
 	      scheme === 'dark' ? '#262624' : '#F5F4EE'

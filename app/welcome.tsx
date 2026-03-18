@@ -9,8 +9,11 @@ import {
   useColorScheme,
   useWindowDimensions,
   ViewToken,
+  ActivityIndicator,
 } from 'react-native'
 import { useRouter } from 'expo-router'
+import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import Svg, {
   Path,
   Circle,
@@ -24,6 +27,8 @@ import Svg, {
   ClipPath,
 } from 'react-native-svg'
 import { Colors } from '@/constants/theme'
+
+const API = process.env.EXPO_PUBLIC_API_URL
 
 // ─── Illustrations ──────────────────────────────────────────────────────────
 
@@ -225,7 +230,7 @@ const cards = [
   },
   {
     title: 'Track Your\nPerformance',
-    subtitle: 'Build a portfolio, monitor your positions, and see how your strategy plays out over time.',
+    subtitle: 'Build a portfolio, monitor your positions, and see how your strategy performs over time.',
     illustration: 'trend',
     image: require('@/assets/onboarding-activity.png'),
   },
@@ -239,7 +244,30 @@ export default function WelcomeScreen() {
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
   const { width } = useWindowDimensions()
   const [activeIndex, setActiveIndex] = useState(0)
+  const [demoLoading, setDemoLoading] = useState(false)
+  const [demoError, setDemoError] = useState<string | null>(null)
   const s = styles(colors, width)
+
+  async function handleDemo() {
+    setDemoError(null)
+    setDemoLoading(true)
+    try {
+      const response = await fetch(`${API}/demo`, { method: 'POST' })
+      if (response.ok) {
+        const data = await response.json()
+        await AsyncStorage.setItem('authToken', data.token)
+        await AsyncStorage.setItem('username', data.username)
+        router.replace('/(tabs)')
+      } else {
+        const data = await response.json()
+        setDemoError(data.error || 'Something went wrong')
+      }
+    } catch {
+      setDemoError('Something went wrong, please try again')
+    } finally {
+      setDemoLoading(false)
+    }
+  }
 
   const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
     if (viewableItems.length > 0 && viewableItems[0].index != null) {
@@ -299,6 +327,27 @@ export default function WelcomeScreen() {
         >
           <Text style={s.signupText}>Sign Up</Text>
         </Pressable>
+        <Pressable
+          style={({ pressed }) => [s.demoButton, pressed && s.pressed]}
+          onPress={handleDemo}
+          disabled={demoLoading}
+        >
+          <Animated.View layout={Layout.duration(200)} style={s.demoInner}>
+            {demoLoading
+              ? <Animated.View entering={FadeIn.duration(200)}><ActivityIndicator size="small" color="#FFFFFF" /></Animated.View>
+              : <Animated.Text layout={Layout.duration(200)} exiting={FadeOut.duration(200)} style={s.demoText}>Try Demo</Animated.Text>}
+            {demoError && !demoLoading && (
+              <Animated.Text
+                entering={FadeIn.duration(200)}
+                exiting={FadeOut.duration(200)}
+                style={s.demoError}
+                numberOfLines={1}
+              >
+                {demoError}
+              </Animated.Text>
+            )}
+          </Animated.View>
+        </Pressable>
       </View>
     </View>
   )
@@ -357,13 +406,13 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
     gap: 12,
   },
   loginButton: {
-    backgroundColor: colors.accent,
+    backgroundColor: '#30302E',
     borderRadius: 10,
     paddingVertical: 16,
     alignItems: 'center',
   },
   signupButton: {
-    backgroundColor: colors.surface,
+    backgroundColor: '#30302E',
     borderRadius: 10,
     paddingVertical: 16,
     alignItems: 'center',
@@ -382,5 +431,27 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
     color: colors.text,
     fontSize: 16,
     fontWeight: '600',
+  },
+  demoButton: {
+    backgroundColor: colors.accent,
+    borderRadius: 10,
+    height: 54,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  demoInner: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 8,
+  },
+  demoText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  demoError: {
+    color: colors.text,
+    fontSize: 12,
+    flexShrink: 1,
   },
 })

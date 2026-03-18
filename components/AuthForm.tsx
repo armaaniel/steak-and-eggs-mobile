@@ -11,6 +11,7 @@ import {
 import { Link, useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated'
 import Svg, { Ellipse, Path, G, Circle, Text as SvgText } from 'react-native-svg'
 import { Colors } from '@/constants/theme'
 
@@ -50,6 +51,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [hasTyped, setHasTyped] = useState(false)
+  const [demoError, setDemoError] = useState<string | null>(null)
 
   const isLogin = mode === 'login'
   const showError = !!error && !isSubmitting && !hasTyped
@@ -105,19 +107,23 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   return (
     <View style={s.container}>
-      <Pressable onPress={() => router.back()} style={s.backButton}>
+      <Pressable onPress={() => router.replace('/welcome')} style={s.backButton}>
         <Ionicons name="chevron-back" size={24} color={colors.text} />
       </Pressable>
       <View style={s.logoWrap}><Logo textColor={scheme === 'dark' ? '#E07B3C' : '#333333'} /></View>
-      <Text style={s.heading}>{isLogin ? 'Welcome Back' : 'Sign Up'}</Text>
+      <Animated.Text layout={Layout.duration(200)} style={s.heading}>{isLogin ? 'Welcome Back' : 'Sign Up'}</Animated.Text>
 
       {showError && (
-        <View style={s.errorContainer}>
-          <Text style={s.errorText}>{error}</Text>
-        </View>
+        <Animated.Text
+          entering={FadeIn.duration(200)}
+          exiting={FadeOut.duration(200)}
+          style={s.errorText}
+        >
+          {error}
+        </Animated.Text>
       )}
 
-      <View style={s.labeledInput}>
+      <Animated.View layout={Layout.duration(200)} style={s.labeledInput}>
         <Text style={s.inputLabel}>Username</Text>
         <TextInput
           style={s.inputField}
@@ -126,9 +132,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
           value={username}
           onChangeText={(text) => { setUsername(text); setHasTyped(true) }}
         />
-      </View>
+      </Animated.View>
 
-      <View style={s.labeledInput}>
+      <Animated.View layout={Layout.duration(200)} style={s.labeledInput}>
         <Text style={s.inputLabel}>Password</Text>
         <TextInput
           style={s.inputField}
@@ -137,25 +143,60 @@ export default function AuthForm({ mode }: AuthFormProps) {
           value={password}
           onChangeText={(text) => { setPassword(text); setHasTyped(true) }}
         />
-      </View>
+      </Animated.View>
 
-      <Pressable
-        style={({ pressed }) => [s.button, pressed && s.buttonPressed, isSubmitting && s.buttonDisabled]}
-        onPress={handleSubmit}
-        disabled={isSubmitting}
-      >
-        {isSubmitting
-          ? <ActivityIndicator color={colors.surface} />
-          : <Text style={s.buttonText}>{isLogin ? 'Log In' : 'Sign Up'}</Text>
-        }
-      </Pressable>
+      <Animated.View layout={Layout.duration(200)}>
+        <Pressable
+          style={({ pressed }) => [s.button, pressed && s.buttonPressed, isSubmitting && s.buttonDisabled]}
+          onPress={handleSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting
+            ? <ActivityIndicator color={colors.surface} />
+            : <Text style={s.buttonText}>{isLogin ? 'Log In' : 'Sign Up'}</Text>
+          }
+        </Pressable>
+      </Animated.View>
 
-      <Text style={s.footer}>
-        {isLogin ? "Don't have an account? " : 'Already have an account? '}
-        <Link href={isLogin ? '/signup' : '/login'} style={s.footerLink}>
-          {isLogin ? 'Sign Up' : 'Login'}
-        </Link>
-      </Text>
+      <Animated.View layout={Layout.duration(200)}>
+        <Text style={s.footer}>
+          {isLogin ? "Don't have an account? " : 'Already have an account? '}
+          <Link href={isLogin ? '/signup' : '/login'} style={s.footerLink}>
+            {isLogin ? 'Sign Up' : 'Login'}
+          </Link>
+        </Text>
+      </Animated.View>
+
+      {!isLogin && (
+        <Pressable style={s.tryDemoBtn} onPress={async () => {
+          setDemoError(null)
+          try {
+            const response = await fetch(`${API}/demo`, { method: 'POST' })
+            if (response.ok) {
+              const data = await response.json()
+              await AsyncStorage.setItem('authToken', data.token)
+              await AsyncStorage.setItem('username', data.username)
+              router.replace('/(tabs)')
+            } else {
+              const data = await response.json()
+              setDemoError(data.error || 'Something went wrong')
+            }
+          } catch {
+            setDemoError('Something went wrong')
+          }
+        }}>
+          <Text style={s.tryDemo}>Try Demo</Text>
+          {demoError && (
+            <Animated.Text
+              entering={FadeIn.duration(200)}
+              exiting={FadeOut.duration(200)}
+              style={s.tryDemoError}
+            >
+              {demoError}
+            </Animated.Text>
+          )}
+        </Pressable>
+      )}
     </View>
   )
 }
@@ -184,18 +225,10 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: 4,
-  },
-  errorContainer: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.negative,
-    borderRadius: 8,
-    padding: 12,
   },
   errorText: {
-    color: colors.negative,
-    fontSize: 14,
+    color: colors.textMuted,
+    fontSize: 13,
   },
   labeledInput: {
     backgroundColor: colors.surface,
@@ -238,6 +271,23 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     textAlign: 'center',
     color: colors.textMuted,
     fontSize: 14,
+  },
+  tryDemoBtn: {
+    position: 'absolute',
+    bottom: 96,
+    alignSelf: 'center',
+  },
+  tryDemo: {
+    color: colors.accent,
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  tryDemoError: {
+    color: colors.textMuted,
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 6,
   },
   footerLink: {
     color: colors.accent,

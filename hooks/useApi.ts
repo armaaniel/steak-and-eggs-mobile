@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useRouter } from 'expo-router'
-import { resetConsumer } from '@/consumer'
+import { useAuth } from '@/contexts/AuthContext'
 import type { ChartData } from '@/types'
 
 const API = process.env.EXPO_PUBLIC_API_URL
@@ -21,19 +20,14 @@ export const KEYS = {
 // ─── Queries ─────────────────────────────────────────────────────────────────
 
 export function usePortfolio() {
-  const router = useRouter()
+  const { logout } = useAuth()
   return useQuery({
     queryKey: KEYS.portfolio,
     queryFn: async () => {
       const token = await getToken()
-      if (!token) { router.replace('/welcome'); return null }
+      if (!token) { await logout(); return null }
       const res = await fetch(`${API}/portfoliodata`, { headers: { authToken: token } })
-      if (res.status === 401) {
-        await AsyncStorage.removeItem('authToken')
-        resetConsumer()
-        router.replace('/welcome')
-        return null
-      }
+      if (res.status === 401) { await logout(); return null }
       if (!res.ok) throw new Error('Unable to fetch portfolio')
       return res.json()
     },
@@ -41,19 +35,14 @@ export function usePortfolio() {
 }
 
 export function usePortfolioChart() {
-  const router = useRouter()
+  const { logout } = useAuth()
   return useQuery({
     queryKey: KEYS.portfolioChart,
     queryFn: async () => {
       const token = await getToken()
-      if (!token) { router.replace('/welcome'); return [] as ChartData[] }
+      if (!token) { await logout(); return [] as ChartData[] }
       const res = await fetch(`${API}/portfoliochart`, { headers: { authToken: token } })
-      if (res.status === 401) {
-        await AsyncStorage.removeItem('authToken')
-        resetConsumer()
-        router.replace('/welcome')
-        return [] as ChartData[]
-      }
+      if (res.status === 401) { await logout(); return [] as ChartData[] }
       if (!res.ok) {
         const today = new Date()
         return [
@@ -68,19 +57,14 @@ export function usePortfolioChart() {
 
 
 export function useActivity() {
-  const router = useRouter()
+  const { logout } = useAuth()
   return useQuery({
     queryKey: KEYS.activity,
     queryFn: async () => {
       const token = await getToken()
-      if (!token) { router.replace('/welcome'); return [] }
+      if (!token) { await logout(); return [] }
       const res = await fetch(`${API}/activitydata`, { headers: { authToken: token } })
-      if (res.status === 401) {
-        await AsyncStorage.removeItem('authToken')
-        resetConsumer()
-        router.replace('/welcome')
-        return []
-      }
+      if (res.status === 401) { await logout(); return [] }
       if (!res.ok) throw new Error('Unable to fetch transactions')
       return res.json()
     },

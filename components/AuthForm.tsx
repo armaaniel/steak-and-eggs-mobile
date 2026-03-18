@@ -10,7 +10,7 @@ import {
 } from 'react-native'
 import { Link, useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useAuth } from '@/contexts/AuthContext'
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated'
 import Svg, { Ellipse, Path, G, Circle, Text as SvgText } from 'react-native-svg'
 import { Colors } from '@/constants/theme'
@@ -42,6 +42,7 @@ interface AuthFormProps {
 
 export default function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter()
+  const { login } = useAuth()
   const scheme = useColorScheme()
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
   const API = process.env.EXPO_PUBLIC_API_URL
@@ -89,9 +90,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
       if (response.ok) {
         const data = await response.json()
-        await AsyncStorage.setItem('authToken', data.token)
-        await AsyncStorage.setItem('username', data.username)
-        router.replace('/(tabs)')
+        await login(data.token, data.username)
       } else {
         const errorData = await response.json()
         setError(errorData.error)
@@ -171,14 +170,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
       {!isLogin && (
         <Pressable style={s.tryDemoBtn} disabled={demoLoading} onPress={async () => {
           setDemoError(null)
+          setHasTyped(false)
           setDemoLoading(true)
           try {
             const response = await fetch(`${API}/demo`, { method: 'POST' })
             if (response.ok) {
               const data = await response.json()
-              await AsyncStorage.setItem('authToken', data.token)
-              await AsyncStorage.setItem('username', data.username)
-              router.replace('/(tabs)')
+              await login(data.token, data.username)
             } else {
               const data = await response.json()
               setDemoError(data.error || 'Something went wrong')
@@ -193,7 +191,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             <Text style={s.tryDemo}>Try Demo</Text>
             {demoLoading && <Animated.View entering={FadeIn.duration(200)} style={{ position: 'absolute', left: '100%', marginLeft: 6 }}><ActivityIndicator size="small" color={colors.accent} /></Animated.View>}
           </View>
-          {demoError && (
+          {demoError && !hasTyped && (
             <Animated.Text
               entering={FadeIn.duration(200)}
               exiting={FadeOut.duration(200)}
@@ -291,10 +289,14 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     textAlign: 'center',
   },
   tryDemoError: {
+    position: 'absolute',
+    top: '100%',
+    marginTop: 6,
+    alignSelf: 'center',
     color: colors.textMuted,
     fontSize: 12,
+    width: 250,
     textAlign: 'center',
-    marginTop: 6,
   },
   footerLink: {
     color: colors.accent,

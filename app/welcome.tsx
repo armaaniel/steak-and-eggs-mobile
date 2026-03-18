@@ -336,7 +336,7 @@ export default function WelcomeScreen() {
           <View style={s.demoInner}>
             {demoLoading
               ? <ActivityIndicator size="small" color="#FFFFFF" />
-              : <Animated.Text entering={FadeIn.duration(200)} exiting={FadeOut.duration(200)} style={s.demoText}>Try Demo</Animated.Text>}
+              : <Animated.Text entering={FadeIn.duration(200)} exiting={FadeOut.duration(200)} layout={Layout.duration(200)} style={s.demoText}>Try Demo</Animated.Text>}
             {demoError && !demoLoading && (
               <Animated.Text
                 entering={FadeIn.duration(200)}
@@ -390,7 +390,7 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 8,
-    paddingBottom: 24,
+    paddingBottom: 16,
   },
   dot: {
     width: 8,

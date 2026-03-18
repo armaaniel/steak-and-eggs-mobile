@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useDebounce } from 'use-debounce'
 import { Colors } from '@/constants/theme'
-import { resetConsumer } from '@/consumer'
+import { useAuth } from '@/contexts/AuthContext'
 import type { Error } from '@/types'
 
 interface SearchResult {
@@ -41,6 +41,7 @@ function StockCard({ symbol, onPress, s, scheme }: { symbol: string; onPress: ()
 
 export default function SearchScreen() {
   const router = useRouter()
+  const { logout } = useAuth()
   const scheme = useColorScheme()
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
   const API = process.env.EXPO_PUBLIC_API_URL
@@ -72,18 +73,13 @@ export default function SearchScreen() {
     async function searchStocks() {
       setError(null)
       const token = await AsyncStorage.getItem('authToken')
-      if (!token) { router.replace('/welcome'); return }
+      if (!token) { await logout(); return }
 
       try {
         const response = await fetch(`${API}/search?q=${encodeURIComponent(debouncedSearchTerm)}`, {
           headers: { authToken: token },
         })
-        if (response.status === 401) {
-          await AsyncStorage.removeItem('authToken')
-          resetConsumer()
-          router.replace('/welcome')
-          return
-        }
+        if (response.status === 401) { await logout(); return }
         if (!response.ok) throw new Error(`${response.status}`)
         setSearchResults(await response.json())
       } catch {

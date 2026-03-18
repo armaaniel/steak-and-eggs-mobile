@@ -15,7 +15,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Colors } from '@/constants/theme'
 import { toReadable, toCurrency, toPercent } from '@/utils'
-import { getConsumer, resetConsumer } from '@/consumer'
+import { getConsumer } from '@/consumer'
+import { useAuth } from '@/contexts/AuthContext'
 import Chart from '@/components/Chart'
 import BuySell from '@/components/BuySell'
 import PositionCard from '@/components/PositionCard'
@@ -68,6 +69,7 @@ export default function StockScreen() {
 
 function StockScreenInner({ symbol }: { symbol: string | undefined }) {
   const router = useRouter()
+  const { logout } = useAuth()
   const scheme = useColorScheme()
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
   const API = process.env.EXPO_PUBLIC_API_URL
@@ -94,20 +96,14 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
     ? colors.textMuted
     : isPositive ? colors.positive : colors.negative
 
-  async function handle401() {
-    await AsyncStorage.removeItem('authToken')
-    resetConsumer()
-    router.replace('/welcome')
-  }
-
   async function getUserData() {
     const token = await AsyncStorage.getItem('authToken')
-    if (!token) { router.replace('/welcome'); return }
+    if (!token) { await logout(); return }
     try {
       const response = await fetch(`${API}/stocks/${symbol}/userdata`, {
         headers: { authToken: token },
       })
-      if (response.status === 401) { await handle401(); return }
+      if (response.status === 401) { await logout(); return }
       const data = await response.json()
       setUserData(data)
     } catch {
@@ -119,7 +115,7 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
   useEffect(() => {
     async function getData() {
       const token = await AsyncStorage.getItem('authToken')
-      if (!token) { router.replace('/welcome'); return }
+      if (!token) { await logout(); return }
 
       setTickerNotFound(false)
       try {
@@ -137,7 +133,7 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
           filtered.unshift({ symbol: symbol!, name: data.name ?? symbol })
           await AsyncStorage.setItem('recentStocks', JSON.stringify(filtered.slice(0, 12)))
         } else if (tickerResponse.status === 401) {
-          await handle401()
+          await logout()
         } else {
           setTickerNotFound(true)
         }
@@ -154,7 +150,7 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
       if (!token) return
       try {
         const response = await fetch(`${API}/stocks/${symbol}/chartdata`, { headers: { authToken: token } })
-        if (response.status === 401) { await handle401(); return }
+        if (response.status === 401) { await logout(); return }
         setChartData(await response.json())
       } catch {
         const today = new Date()
@@ -173,7 +169,7 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
       if (!token) return
       try {
         const response = await fetch(`${API}/stocks/${symbol}/companydata`, { headers: { authToken: token } })
-        if (response.status === 401) { await handle401(); return }
+        if (response.status === 401) { await logout(); return }
         setCompanyData(await response.json())
       } catch {
         setCompanyData({ market_cap: 'N/A', description: 'N/A' })
@@ -188,7 +184,7 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
       if (!token) return
       try {
         const response = await fetch(`${API}/stocks/${symbol}/marketdata`, { headers: { authToken: token } })
-        if (response.status === 401) { await handle401(); return }
+        if (response.status === 401) { await logout(); return }
         setMarketData(await response.json())
       } catch {
         setMarketData({ open: 'N/A', high: 'N/A', low: 'N/A', volume: 'N/A' })
@@ -203,7 +199,7 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
       if (!token) return
       try {
         const response = await fetch(`${API}/stocks/${symbol}/stockprice`, { headers: { authToken: token } })
-        if (response.status === 401) { await handle401(); return }
+        if (response.status === 401) { await logout(); return }
         const data = await response.json()
         setPrice(data.price)
         setOpen(data.open)

@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 import { View, Text, Pressable, StyleSheet, useColorScheme, Modal, TextInput, ActivityIndicator } from 'react-native'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
-import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Colors } from '@/constants/theme'
-import { resetConsumer } from '@/consumer'
+import { useAuth } from '@/contexts/AuthContext'
 
 const API = process.env.EXPO_PUBLIC_API_URL
 
@@ -65,7 +64,7 @@ function LabeledInput({ label, value, onChangeText, secureTextEntry, colors }: L
 }
 
 export default function SettingsScreen() {
-  const router = useRouter()
+  const { logout } = useAuth()
   const scheme = useColorScheme()
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
   const s = makeStyles(colors)
@@ -96,9 +95,7 @@ export default function SettingsScreen() {
   const [daHasTyped, setDaHasTyped] = useState(false)
 
   async function handleLogout() {
-    await AsyncStorage.removeItem('authToken')
-    resetConsumer()
-    router.replace('/welcome')
+    await logout()
   }
 
   function openChangePassword() {

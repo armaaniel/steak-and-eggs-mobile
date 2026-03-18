@@ -146,7 +146,8 @@ const styles = StyleSheet.create({
   chartWrapper: {
     height: CHART_HEIGHT,
     overflow: 'hidden',
-		marginBottom:-49,
+    marginBottom: -49,
+    backgroundColor: 'transparent',
   },
   tooltip: {
     borderRadius: 6,

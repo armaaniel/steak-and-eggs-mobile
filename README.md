@@ -1,6 +1,6 @@
 # Steak & Eggs Mobile
 
-Mobile app for [steakneggs.app](https://steakneggs.app/) — a trading simulator with streaming market data.
+React Native app for [steakneggs.app](https://steakneggs.app/) — a trading simulator with streaming market data.
 
 Backend repo: [steak-and-eggs](https://github.com/armaaniel/steak-and-eggs)
 
@@ -20,7 +20,6 @@ Backend repo: [steak-and-eggs](https://github.com/armaaniel/steak-and-eggs)
 ### WebSocket Management
 
 The app shares a single WebSocket connection for all real-time price updates across components. On the home screen, it subscribes to updates for every held position. On the stock screen, it subscribes to updates for the current symbol. Subscriptions are cleaned up on unmount.
-
 
 ### Auth Flow
 

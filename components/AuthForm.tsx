@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   useColorScheme,
+  useWindowDimensions,
   ActivityIndicator,
 } from 'react-native'
 import { Link, useRouter } from 'expo-router'
@@ -43,6 +44,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const { login } = useAuth()
   const scheme = useColorScheme()
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
+  const { height } = useWindowDimensions()
   const API = process.env.EXPO_PUBLIC_API_URL
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -99,7 +101,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
     }
   }
 
-  const s = styles(colors)
+  const s = styles(colors, height)
 
   return (
     <View style={s.container}>
@@ -202,7 +204,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
   )
 }
 
-const styles = (colors: typeof Colors.light) => StyleSheet.create({
+const styles = (colors: typeof Colors.light, screenHeight: number) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -219,7 +221,7 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   logoWrap: {
     position: 'absolute',
-    top: 106,
+    top: screenHeight < 700 ? 60 : 106,
     alignSelf: 'center',
   },
   heading: {

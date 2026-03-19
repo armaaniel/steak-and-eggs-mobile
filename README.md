@@ -1,50 +1,68 @@
-# Welcome to your Expo app 👋
+# Steak & Eggs Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Mobile app for [steakneggs.app](https://steakneggs.app/) — a trading simulator with streaming market data.
 
-## Get started
+Backend repo: [steak-and-eggs](https://github.com/armaaniel/steak-and-eggs)
 
-1. Install dependencies
+## Architecture
 
-   ```bash
-   npm install
-   ```
+- Expo Router file-based navigation with tab layout and stack screens
+- Real-time price updates via a shared ActionCable WebSocket connection
+- React Query manages all server state with automatic cache invalidation after trades, deposits, and withdrawals
+- Full light and dark mode support driven by system theme
+- Graceful loading states — elements fade in once their data arrives
+- All API calls set meaningful fallback values in the event of network failures
+- Multi-step buy/sell order flow with confirmation and order receipt
+- Debounced search with locally persisted recent stocks
 
-2. Start the app
+## Deep Dive
 
-   ```bash
-   npx expo start
-   ```
+### WebSocket Management
 
-In the output, you'll find options to open the app in a
+The app shares a single WebSocket connection for all real-time price updates across components. On the home screen, it subscribes to updates for every held position. On the stock screen, it subscribes to updates for the current symbol. Subscriptions are cleaned up on unmount.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Auth Flow
 
-## Get a fresh project
+`AuthContext` wraps the entire app. On launch it reads the token from AsyncStorage - if present, the root layout redirects into the tab group; if absent, it shows the welcome/login/signup screens. Any 401 response from the API clears the stored token and redirects to login. All API hooks check auth state before fetching.
 
-When you're ready, run:
+### Loading States
 
-```bash
-npm run reset-project
-```
+Content visibility is gated behind data resolution. Prices, ticker info, chart data, and market details each render at zero opacity and fade in independently once their data arrives – using both `Animated.Value` and Reanimated's `FadeIn` transitions.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Caching & Invalidation
 
-## Learn more
+React Query caches portfolio data, chart data, and activity history. After any mutation — buy, sell, deposit, or withdraw — all three query keys are invalidated so the UI reflects the latest state without a manual refresh.
 
-To learn more about developing your project with Expo, look at the following resources:
+### Reusable Components
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Login and signup share a single `AuthForm` component that adapts based on a `mode` prop. Deposit and withdraw share a single `FundsButton` component with a bottom sheet picker that switches between the two flows. `PositionCard` renders in both the home screen holdings list and the stock detail page.
 
-## Join the community
+### Derived Values
 
-Join our community of developers creating universal apps.
+As prices stream in via WebSocket, the positions list recalculates P&L and daily change per position. The portfolio value recalculates client-side every 5 seconds using a throttled callback. Estimated cost on buy/sell orders updates in real time as the user types.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Error Handling
+
+The app degrades gracefully on network failures — every fetch sets fallback values so the UI never breaks. 401 responses clear auth state and redirect to login. Search, trade, deposit, and withdraw mutations surface inline error messages.
+
+### Theming
+
+A centralized `Colors` object exports light and dark palettes. Every component pulls colors from the theme via `useColorScheme()` — no hardcoded color values. Semantic colors (positive/negative/accent) adapt per mode.
+
+## Screens
+
+| Screen | Route | Description |
+|---|---|---|
+| Welcome | `/welcome` | Onboarding carousel with login, signup, and demo entry points |
+| Login | `/login` | Auth form with validation |
+| Signup | `/signup` | Auth form with username rules and demo shortcut |
+| Home | `/(tabs)/` | Portfolio value, chart, cash balance, holdings list with live prices |
+| Activity | `/(tabs)/activity` | Transaction history with expandable detail rows |
+| Search | `/(tabs)/search` | Debounced ticker search with recent stocks grid |
+| Settings | `/(tabs)/settings` | Profile, change password, delete account, logout |
+| Stock Detail | `/(tabs)/stocks/[symbol]` | Price, chart, buy/sell flow, holdings, market details, company description |
+
+## Tech Stack
+
+Expo · React Native · TypeScript · Expo Router · React Query · ActionCable · Reanimated · Bottom Sheet · Wagmi Charts

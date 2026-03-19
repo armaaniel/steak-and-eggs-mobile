@@ -46,7 +46,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
   const { height } = useWindowDimensions()
   const API = process.env.EXPO_PUBLIC_API_URL
-
+	
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -221,7 +221,7 @@ const styles = (colors: typeof Colors.light, screenHeight: number) => StyleSheet
   },
   logoWrap: {
     position: 'absolute',
-    top: screenHeight < 700 ? 60 : 106,
+    top: screenHeight < 750 ? 60 : 106,
     alignSelf: 'center',
   },
   heading: {

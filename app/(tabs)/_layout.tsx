@@ -37,7 +37,7 @@ function MenuBar({ state, navigation }: BottomTabBarProps) {
               <Ionicons
                 name={iconName ?? 'ellipse-outline'}
                 size={22}
-                color={isFocused ? (scheme === 'dark' ? colors.textMuted : colors.accent) : colors.textHint}
+                color={isFocused ? (scheme === 'dark' ? colors.textMuted : colors.accent) : (scheme === 'dark' ? colors.textHint : colors.textMuted)}
               />
             </Pressable>
           )
@@ -81,14 +81,5 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.textMuted,
-  },
-  labelFocused: {
-    color: colors.accent,
-    fontWeight: '600',
   },
 })

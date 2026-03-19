@@ -86,7 +86,7 @@ const Chart = memo(({ chartData }: Props) => {
       <View
         style={[
           styles.empty,
-          { backgroundColor: 'transparent', borderColor: colors.border },
+          { backgroundColor: colors.background, borderColor: colors.border },
         ]}
       />
     )
@@ -95,7 +95,7 @@ const Chart = memo(({ chartData }: Props) => {
   return (
     <LineChart.Provider data={data} yRange={yRange}>
       <View style={styles.chartWrapper}>
-        <LineChart width={width - H_PADDING} height={CHART_HEIGHT} style={{ backgroundColor: 'transparent' }}>
+        <LineChart width={width - H_PADDING} height={CHART_HEIGHT}>
           <LineChart.Path color={colors.accent} width={2} />
           <LineChart.CursorCrosshair color={colors.accent}>
             <LineChart.Tooltip

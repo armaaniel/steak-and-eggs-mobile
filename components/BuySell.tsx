@@ -67,7 +67,7 @@ export default function BuySell({ getUserData, balance, position, price, name, s
   }
 
   function handleSetAction(next: 'buy' | 'sell') {
-    const toX = next === 'buy' ? 0 : tabWidth / 2
+    const toX = next === 'buy' ? 0 : (tabWidth - 6) / 2
     slideX.value = withTiming(toX, { duration: 180, easing: Easing.out(Easing.cubic) })
     setAction(next)
     setQuantity('')
@@ -141,7 +141,7 @@ export default function BuySell({ getUserData, balance, position, price, name, s
         {/* Buy / Sell toggle */}
         <View style={s.toggle} onLayout={handleTabLayout}>
           {tabWidth > 0 && (
-            <Animated.View style={[s.slider, { width: tabWidth / 2 }, sliderStyle]} />
+            <Animated.View style={[s.slider, { width: (tabWidth - 6) / 2 }, sliderStyle]} />
           )}
           <Pressable style={s.toggleBtn} onPress={() => handleSetAction('buy')}>
             <Text style={[s.toggleText, isBuy && s.toggleTextActive]}>Buy</Text>
@@ -351,11 +351,6 @@ const styles = (colors: typeof Colors.light) => StyleSheet.create({
     left: 3,
     borderRadius: 6,
     backgroundColor: colors.surface,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 2,
   },
   toggleBtn: {
     flex: 1,

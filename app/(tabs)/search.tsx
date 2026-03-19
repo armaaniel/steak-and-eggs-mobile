@@ -54,9 +54,12 @@ export default function SearchScreen() {
   const [hasSearched, setHasSearched] = useState(false)
   const [recentStocks, setRecentStocks] = useState<{ symbol: string; name: string }[]>([])
 
-  // Reload recents every time the tab is focused
+  // Reset search and reload recents every time the tab is focused
   useFocusEffect(
     useCallback(() => {
+      setSearchTerm('')
+      setSearchResults([])
+      setHasSearched(false)
       AsyncStorage.getItem(`recentStocks:${username}`).then((raw) => {
         if (raw) setRecentStocks(JSON.parse(raw))
       })
@@ -95,7 +98,6 @@ export default function SearchScreen() {
   }, [debouncedSearchTerm])
 
   function handleSelect(symbol: string) {
-    setSearchTerm('')
     router.push(`/(tabs)/stocks/${symbol}` as any)
   }
 

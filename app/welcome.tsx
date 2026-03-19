@@ -158,7 +158,7 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    gap: 36,
+    gap: 32,
   },
 
   card: {

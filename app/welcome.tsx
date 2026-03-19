@@ -89,6 +89,7 @@ export default function WelcomeScreen() {
         data={cards}
         horizontal
         pagingEnabled
+        style={{ flexGrow: 0 }}
         showsHorizontalScrollIndicator={false}
         keyExtractor={(_, i) => String(i)}
         onViewableItemsChanged={onViewableItemsChanged}
@@ -157,12 +158,13 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    gap: 36,
   },
 
   card: {
     width,
     paddingHorizontal: 32,
-		justifyContent:'center'
+		paddingTop:32,
   },
   illustrationWrap: {
     alignItems: 'center',
@@ -192,7 +194,6 @@ const styles = (colors: typeof Colors.light, width: number) => StyleSheet.create
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 8,
-    paddingBottom: 16,
   },
   dot: {
     width: 8,

@@ -71,7 +71,6 @@ export default function SettingsScreen() {
 
   // Change password state
   const [cpVisible, setCpVisible] = useState(false)
-  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [cpError, setCpError] = useState<string | null>(null)
@@ -81,7 +80,7 @@ export default function SettingsScreen() {
 
   // Delete account state
   const [daVisible, setDaVisible] = useState(false)
-  const [deletePassword, setDeletePassword] = useState('')
+  const [deleteConfirmation, setDeleteConfirmation] = useState('')
   const [daError, setDaError] = useState<string | null>(null)
   const [daSubmitting, setDaSubmitting] = useState(false)
   const [daHasTyped, setDaHasTyped] = useState(false)
@@ -109,7 +108,6 @@ export default function SettingsScreen() {
   }
 
   function openChangePassword() {
-    setCurrentPassword('')
     setNewPassword('')
     setConfirmPassword('')
     setCpError(null)
@@ -121,7 +119,6 @@ export default function SettingsScreen() {
 
   function closeChangePassword() {
     setCpVisible(false)
-    setCurrentPassword('')
     setNewPassword('')
     setConfirmPassword('')
     setCpError(null)
@@ -131,7 +128,7 @@ export default function SettingsScreen() {
   }
 
   function openDeleteAccount() {
-    setDeletePassword('')
+    setDeleteConfirmation('')
     setDaError(null)
     setDaSubmitting(false)
     setDaHasTyped(false)
@@ -140,7 +137,7 @@ export default function SettingsScreen() {
 
   function closeDeleteAccount() {
     setDaVisible(false)
-    setDeletePassword('')
+    setDeleteConfirmation('')
     setDaError(null)
     setDaSubmitting(false)
     setDaHasTyped(false)
@@ -166,11 +163,7 @@ export default function SettingsScreen() {
       const response = await fetch(`${API}/change_password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', authToken: token } as HeadersInit,
-        body: JSON.stringify({
-          current_password: currentPassword,
-          new_password: newPassword,
-          confirm_password: confirmPassword,
-        }),
+        body: JSON.stringify({ new_password: newPassword }),
       })
       if (response.ok) {
         setCpSuccess('Password updated successfully')
@@ -189,8 +182,8 @@ export default function SettingsScreen() {
     setDaHasTyped(false)
     setDaError(null)
 
-    if (deletePassword.length === 0) {
-      setDaError('Please enter your password')
+    if (deleteConfirmation.toLowerCase() !== 'delete') {
+      setDaError('Please type "delete" to confirm')
       return
     }
 
@@ -200,7 +193,6 @@ export default function SettingsScreen() {
       const response = await fetch(`${API}/delete_account`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', authToken: token } as HeadersInit,
-        body: JSON.stringify({ password: deletePassword }),
       })
       if (response.ok) {
         handleLogout()
@@ -268,13 +260,6 @@ export default function SettingsScreen() {
             </View>
 
             <LabeledInput
-              label="Current Password"
-              value={currentPassword}
-              onChangeText={(text) => { setCurrentPassword(text); setCpHasTyped(true) }}
-              secureTextEntry
-              colors={colors}
-            />
-            <LabeledInput
               label="New Password"
               value={newPassword}
               onChangeText={(text) => { setNewPassword(text); setCpHasTyped(true) }}
@@ -321,17 +306,16 @@ export default function SettingsScreen() {
             </Text>
 
             <LabeledInput
-              label="Enter your password to confirm"
-              value={deletePassword}
-              onChangeText={(text) => { setDeletePassword(text); setDaHasTyped(true) }}
-              secureTextEntry
+              label='Type "delete" to confirm'
+              value={deleteConfirmation}
+              onChangeText={(text) => { setDeleteConfirmation(text); setDaHasTyped(true) }}
               colors={colors}
             />
 
             <Pressable
-              style={({ pressed }) => [s.dangerButton, pressed && s.buttonPressed]}
+              style={({ pressed }) => [s.dangerButton, (daSubmitting || deleteConfirmation.toLowerCase() !== 'delete') && s.buttonDisabled, pressed && !daSubmitting && deleteConfirmation.toLowerCase() === 'delete' && s.buttonPressed]}
               onPress={handleDeleteAccount}
-              disabled={daSubmitting}
+              disabled={daSubmitting || deleteConfirmation.toLowerCase() !== 'delete'}
             >
               {daSubmitting
                 ? <ActivityIndicator color="#fff" />
@@ -469,6 +453,9 @@ const makeStyles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   buttonPressed: {
     opacity: 0.7,
+  },
+  buttonDisabled: {
+    opacity: 0.4,
   },
   buttonText: {
     color: '#fff',

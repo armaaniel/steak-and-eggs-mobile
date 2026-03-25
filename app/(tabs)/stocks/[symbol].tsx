@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   ScrollView,
   Pressable,
   StyleSheet,
-  Animated,
   useColorScheme,
 } from 'react-native'
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router'
@@ -23,7 +22,7 @@ import PositionCard from '@/components/PositionCard'
 import type { TickerData, UserData, ChartData, Price, Open } from '@/types'
 
 
-const FADE_DURATION = 250
+const FADE_DURATION = 200
 
 const EXCHANGE_NAMES: { [key: string]: string } = {
   XNAS: 'NASDAQ',
@@ -46,17 +45,14 @@ interface CompanyData {
 }
 
 function useFadeIn(trigger: unknown) {
-  const opacity = useRef(new Animated.Value(0)).current
+  const opacity = useSharedValue(0)
   useEffect(() => {
     if (trigger != null) {
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: FADE_DURATION,
-        useNativeDriver: true,
-      }).start()
+      opacity.value = withTiming(1, { duration: FADE_DURATION })
     }
   }, [trigger])
-  return opacity
+  const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }))
+  return animatedStyle
 }
 
 export default function StockScreen() {
@@ -262,7 +258,7 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
           />
           <View style={s.headingText}>
             <Text style={s.symbol}>{symbol}</Text>
-            <Animated.Text style={[s.name, { opacity: tickerOpacity }]}>{tickerData?.name}</Animated.Text>
+            <ReAnimated.Text style={[s.name, tickerOpacity]}>{tickerData?.name}</ReAnimated.Text>
           </View>
           <Pressable onPress={() => router.replace('/(tabs)')} hitSlop={12} style={s.backBtn}>
             <Text style={s.backBtnText}>←</Text>
@@ -272,21 +268,21 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
         {/* 2. Price + percent change + timestamp */}
         <View style={s.priceRow}>
           <View>
-            <Animated.View style={{ flexDirection: 'row', alignItems: 'baseline', opacity: priceOpacity }}>
+            <ReAnimated.View style={[{ flexDirection: 'row', alignItems: 'baseline' }, priceOpacity]}>
               <Text style={s.price}>${toCurrency(price)}</Text>
               <Text style={s.priceCurrency}> USD</Text>
-            </Animated.View>
+            </ReAnimated.View>
             <Text style={s.asOf}>{asOf.toLocaleTimeString()}</Text>
           </View>
-          <Animated.View style={{ opacity: priceOpacity }}>
+          <ReAnimated.View style={priceOpacity}>
             <Text style={[s.percentChange, { color: changeColor }]}>{percentChange}</Text>
-          </Animated.View>
+          </ReAnimated.View>
         </View>
 
         {/* 3. Chart */}
-        <Animated.View style={{ opacity: chartOpacity }}>
+        <ReAnimated.View style={chartOpacity}>
           <Chart chartData={chartData} />
-        </Animated.View>
+        </ReAnimated.View>
 
         {/* 4. Buy/Sell */}
         <BuySell
@@ -324,10 +320,10 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
 
         {/* 7. Company description (common stocks only) */}
         {tickerData?.ticker_type === 'CS' && companyData?.description && (
-          <Animated.View style={[s.section, { opacity: companyOpacity }]}>
+          <ReAnimated.View style={[s.section, companyOpacity]}>
             <Text style={s.sectionHeader}>Description</Text>
             <Text style={s.description}>{companyData.description}</Text>
-          </Animated.View>
+          </ReAnimated.View>
         )}
 
     </ScrollView>
@@ -336,14 +332,14 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
   )
 }
 
-function MarketCell({ label, value, opacity }: { label: string; value: string; opacity: Animated.Value }) {
+function MarketCell({ label, value, opacity }: { label: string; value: string; opacity: ReturnType<typeof useAnimatedStyle> }) {
   const colors = Colors[useColorScheme() === 'dark' ? 'dark' : 'light']
   return (
     <View style={cellStyles.cell}>
       <Text style={[cellStyles.label, { color: colors.textMuted }]}>{label}</Text>
-      <Animated.View style={{ opacity }}>
+      <ReAnimated.View style={opacity}>
         <Text style={[cellStyles.value, { color: colors.text }]}>{value}</Text>
-      </Animated.View>
+      </ReAnimated.View>
     </View>
   )
 }

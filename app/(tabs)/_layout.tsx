@@ -56,7 +56,12 @@ export default function TabLayout() {
   return (
     <Tabs
       tabBar={(props) => <MenuBar {...props} />}
-      screenOptions={{ headerShown: false, tabBarPosition: 'top', animation: 'fade', sceneStyle: { backgroundColor: colors.background } }}
+      screenOptions={{
+        headerShown: false,
+        tabBarPosition: 'top',
+        animation: 'none',
+        sceneStyle: { backgroundColor: colors.background },
+      }}
     >
       <Tabs.Screen name="index" options={{ title: 'Home' }} />
       <Tabs.Screen name="activity" options={{ title: 'Activity' }} />

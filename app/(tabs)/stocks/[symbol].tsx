@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   View,
   Text,
@@ -9,8 +9,8 @@ import {
   Animated,
   useColorScheme,
 } from 'react-native'
-import { useLocalSearchParams, useRouter } from 'expo-router'
-import ReAnimated, { FadeIn, Layout } from 'react-native-reanimated'
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router'
+import ReAnimated, { FadeIn, Layout, useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Colors } from '@/constants/theme'
@@ -230,6 +230,15 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
     return () => clearInterval(id)
   }, [])
 
+  const screenOpacity = useSharedValue(0)
+  useFocusEffect(
+    useCallback(() => {
+      screenOpacity.value = withTiming(1, { duration: 200 })
+      return () => { screenOpacity.value = 0 }
+    }, [])
+  )
+  const fadeStyle = useAnimatedStyle(() => ({ opacity: screenOpacity.value }))
+
   const s = styles(colors)
 
   if (tickerNotFound) {
@@ -241,6 +250,7 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
   }
 
   return (
+    <ReAnimated.View style={[{ flex: 1 }, fadeStyle]}>
     <SafeAreaView style={s.safeArea} edges={['bottom']}>
     <ScrollView style={s.scroll} contentContainerStyle={s.content}>
 
@@ -322,6 +332,7 @@ function StockScreenInner({ symbol }: { symbol: string | undefined }) {
 
     </ScrollView>
     </SafeAreaView>
+    </ReAnimated.View>
   )
 }
 

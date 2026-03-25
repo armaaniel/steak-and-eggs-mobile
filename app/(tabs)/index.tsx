@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { View, Text, ScrollView, StyleSheet, useColorScheme } from 'react-native'
 import { useThrottledCallback } from 'use-debounce'
+import { useFocusEffect } from 'expo-router'
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { Colors } from '@/constants/theme'
 import { toPortfolio } from '@/utils'
 import { getConsumer } from '@/consumer'
@@ -60,30 +62,41 @@ export default function HomeScreen() {
     updateLiveAum()
   }, [prices, portfolio?.positions, portfolio?.balance, updateLiveAum])
 
+  const screenOpacity = useSharedValue(0)
+  useFocusEffect(
+    useCallback(() => {
+      screenOpacity.value = withTiming(1, { duration: 200 })
+      return () => { screenOpacity.value = 0 }
+    }, [])
+  )
+  const fadeStyle = useAnimatedStyle(() => ({ opacity: screenOpacity.value }))
+
   const aum = liveAum ?? portfolio?.aum
   const s = styles(colors)
 
   return (
-    <SafeAreaView style={s.safeArea} edges={['bottom']}>
-      <ScrollView style={s.scroll} contentContainerStyle={s.content}>
-        {/* 1. Portfolio value */}
-        <Text style={s.valueAmount}>{toPortfolio(aum) ?? '—'}</Text>
-        <Text style={s.cashLine}>Cash: {toPortfolio(portfolio?.balance) ?? '—'}</Text>
+    <Animated.View style={[{ flex: 1 }, fadeStyle]}>
+      <SafeAreaView style={s.safeArea} edges={['bottom']}>
+        <ScrollView style={s.scroll} contentContainerStyle={s.content}>
+          {/* 1. Portfolio value */}
+          <Text style={s.valueAmount}>{toPortfolio(aum) ?? '—'}</Text>
+          <Text style={s.cashLine}>Cash: {toPortfolio(portfolio?.balance) ?? '—'}</Text>
 
-        {/* 2. Chart */}
-        <Chart chartData={chartData} />
+          {/* 2. Chart */}
+          <Chart chartData={chartData} />
 
-        {/* 3. Holdings */}
-        <View>
-          <Text style={s.sectionHeader}>Holdings</Text>
-          <PositionsList
-            positions={portfolio?.positions}
-            prices={prices}
-            error={isError ? 'Unable to fetch positions, please try again' : null}
-          />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          {/* 3. Holdings */}
+          <View>
+            <Text style={s.sectionHeader}>Holdings</Text>
+            <PositionsList
+              positions={portfolio?.positions}
+              prices={prices}
+              error={isError ? 'Unable to fetch positions, please try again' : null}
+            />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </Animated.View>
   )
 }
 

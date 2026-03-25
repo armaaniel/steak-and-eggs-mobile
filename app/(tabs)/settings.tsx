@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { View, Text, Pressable, StyleSheet, useColorScheme, Modal, TextInput, ActivityIndicator } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import { useFocusEffect } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Colors } from '@/constants/theme'
@@ -68,6 +69,15 @@ export default function SettingsScreen() {
   const scheme = useColorScheme()
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light']
   const s = makeStyles(colors)
+
+  const screenOpacity = useSharedValue(0)
+  useFocusEffect(
+    useCallback(() => {
+      screenOpacity.value = withTiming(1, { duration: 200 })
+      return () => { screenOpacity.value = 0 }
+    }, [])
+  )
+  const fadeStyle = useAnimatedStyle(() => ({ opacity: screenOpacity.value }))
 
   // Change password state
   const [cpVisible, setCpVisible] = useState(false)
@@ -208,6 +218,7 @@ export default function SettingsScreen() {
   }
 
   return (
+    <Animated.View style={[{ flex: 1 }, fadeStyle]}>
     <View style={s.container}>
       {/* Avatar + username */}
       <View style={s.profile}>
@@ -329,6 +340,7 @@ export default function SettingsScreen() {
         </View>
       </Modal>
     </View>
+    </Animated.View>
   )
 }
 

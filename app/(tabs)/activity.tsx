@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { View, Text, Image, FlatList, Pressable, StyleSheet, useColorScheme } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated'
+import { useFocusEffect } from 'expo-router'
+import Animated, { FadeIn, FadeOut, Layout, useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { Colors } from '@/constants/theme'
 import { toCurrency, toPnl, stockLogoUrl } from '@/utils'
 import { useActivity } from '@/hooks/useApi'
@@ -134,9 +135,19 @@ export default function ActivityScreen() {
     setExpandedId((prev) => (prev === id ? null : id))
   }
 
+  const screenOpacity = useSharedValue(0)
+  useFocusEffect(
+    useCallback(() => {
+      screenOpacity.value = withTiming(1, { duration: 200 })
+      return () => { screenOpacity.value = 0 }
+    }, [])
+  )
+  const fadeStyle = useAnimatedStyle(() => ({ opacity: screenOpacity.value }))
+
   const s = styles(colors)
 
   return (
+    <Animated.View style={[{ flex: 1 }, fadeStyle]}>
     <SafeAreaView style={s.container} edges={['bottom']}>
       <FlatList
         data={activityData ?? []}
@@ -159,6 +170,7 @@ export default function ActivityScreen() {
         }
       />
     </SafeAreaView>
+    </Animated.View>
   )
 }
 

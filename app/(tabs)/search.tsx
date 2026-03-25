@@ -11,6 +11,7 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter, useFocusEffect } from 'expo-router'
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useDebounce } from 'use-debounce'
@@ -53,6 +54,15 @@ export default function SearchScreen() {
   const [error, setError] = useState<Error>(null)
   const [hasSearched, setHasSearched] = useState(false)
   const [recentStocks, setRecentStocks] = useState<{ symbol: string; name: string }[]>([])
+
+  const screenOpacity = useSharedValue(0)
+  useFocusEffect(
+    useCallback(() => {
+      screenOpacity.value = withTiming(1, { duration: 200 })
+      return () => { screenOpacity.value = 0 }
+    }, [])
+  )
+  const fadeStyle = useAnimatedStyle(() => ({ opacity: screenOpacity.value }))
 
   // Reset search and reload recents every time the tab is focused
   useFocusEffect(
@@ -104,6 +114,7 @@ export default function SearchScreen() {
   const s = styles(colors)
 
   return (
+    <Animated.View style={[{ flex: 1 }, fadeStyle]}>
     <SafeAreaView style={s.container} edges={['bottom']}>
       {/* Search input */}
       <View style={s.inputRow}>
@@ -160,6 +171,7 @@ export default function SearchScreen() {
         }
       />
     </SafeAreaView>
+    </Animated.View>
   )
 }
 

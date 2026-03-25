@@ -65,7 +65,7 @@ export default function HomeScreen() {
   const screenOpacity = useSharedValue(0)
   useFocusEffect(
     useCallback(() => {
-      screenOpacity.value = withTiming(1, { duration: 200 })
+      screenOpacity.value = withTiming(1, { duration: 150 })
       return () => { screenOpacity.value = 0 }
     }, [])
   )
